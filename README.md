@@ -1,2 +1,2 @@
-# leancw2
-Formalising Mathematics Second Coursework
+# Formalising Mathematics 2024
+Formalising Mathematics Coursework 
