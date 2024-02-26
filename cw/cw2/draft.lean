@@ -3,34 +3,29 @@
 import Mathlib.Tactic
 
 
-variable (G H : Type)[Group G][Group H]
-variable {x : G}
-variable (G * X → X)
+variable (G H : Type)[Group G][MulAction G X] (x : X)
+variable(H : Subgroup G)
+variable {g : G}
 
-/-# Cosets-/
 
-def lcoset.one_mem : (1 : G) ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h} := by sorry
 
-def lcoset.inv_mem (h : y ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h}) : (y⁻¹ ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h}) := by
-  sorry
+open QuotientGroup MulAction
 
-def lcoset.mul_mem (hy : y ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h}) (hz : z ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h}) :
-(y * z ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h}) := by sorry
+def φ (g : G ⧸ MulAction.stabilizer G x) : X :=
+Quotient.liftOn' g (· • x) fun g1 g2 H =>
+    calc
+      g1 • x = g1 • (g1⁻¹ * g2) • x := congr_arg _ (leftRel_apply.mp H).symm
+      _ = g2 • x := by rw [smul_smul, mul_inv_cancel_left]
 
-def lcoset (H : Subgroup G)  (x : G) : Subgroup G
-  where
-  carrier := {a : G | ∃ h, h ∈ H ∧ a = x * h}
-  one_mem' := lcoset.one_mem
-  inv_mem' := lcoset.inv_mem
-  mul_mem' := lcoset.mul_mem
 
-/-# Stabiliser -/
+theorem ofQuotientStabilizer_mem_orbit (g) : φ G x g ∈ orbit G x :=
+  Quotient.inductionOn' g fun g => ⟨g, rfl⟩
 
-def stab () : (S : Subgroup G) := by sorry
 
-def index : Prop := 1=1
 
-def dis_union (X : Set) : (X dis union) :=by sorry
+theorem injective_φ : Function.Injective (φ G x) := by sorry
+
+theorem surjective_φ : Function.Surjective (φ G x) := by sorry
 
 /-# Final Theorem-/
-theorem orbit_stab () : (|X| = ∑ G.orbit(x.i)) (|X|= ∑[G : x.i.stab]) := by sorry
+theorem orbit_stab : (|X| = ∑ G.orbit(x.i)) (|X|= ∑[G : x.i.stab]) := by sorry
