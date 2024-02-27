@@ -37,14 +37,24 @@ have  h: (a⁻¹ * b) • x = a⁻¹  • (b • x) := by rw [mul_smul a⁻¹ b 
 rw [← p, smul_smul a⁻¹ a x, inv_mul_self, one_smul] at h
 exact h
 
-
 example :  a • (b • x)=  (a * b) • x := by exact smul_smul a b x
 
 theorem injective_φ : Function.Injective (φ G x) :=  by
-simp[Function.Injective]
-intros p q r
-apply hi at r
-sorry
+  simp [Function.Injective]
+  intros p q r
+  obtain ⟨a, ha⟩ := Quot.exists_rep p
+  obtain ⟨b, hb⟩ := Quot.exists_rep q
+  have ha: ↑a = p := by exact ha
+  have hb: ↑b = q := by exact hb
+  have r2: φ G x ↑a = φ G x ↑b := by
+    rw [←ha, ←hb] at r
+    exact r
+  apply hi at r2
+  rw [←QuotientGroup.eq'] at r2
+  rw [←ha, ←hb]
+  exact r2
+
+example (N : Subgroup G)[Subgroup.Normal N](n : G ⧸ N) := by exact X
 
 lemma surjective_φ : Function.Surjective (φ G x) := by
 simp[Function.Surjective]
