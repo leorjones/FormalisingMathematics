@@ -22,3 +22,15 @@ def subset_max_N7 (n : ℕ) : Set (ℕ × ℕ × ℕ × ℕ × ℕ × ℕ × ℕ
   { x | ∀ i ∈ Finset.range 7, (x.nth i).get_or_else 0 ≤ n }
 def subset_max_N7 (n : ℕ) : Set N7 :=
   { x | ∀ i : Fin 7, x.nth i < n }
+
+import Mathlib.Tactic
+
+variable (a1 a2 a3 a4 a5 a6 a7 : ℕ )
+variable (n : ℕ)
+-- Define a predicate to check if the list contains elements a1 through a7 and the maximum is less than 7
+def valid_list (l : List ℕ) : Prop :=
+  l = [a1, a2, a3, a4, a5, a6, a7] ∧ ∀ x ∈ l, x < n
+
+-- Define the set with the combined condition
+def mySet : Set (List ℕ) :=
+  { lst | valid_list lst }
