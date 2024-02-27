@@ -11,6 +11,8 @@ variable {a b : G}
 
 
 
+
+
 open QuotientGroup MulAction
 
 
@@ -26,7 +28,7 @@ theorem φ_mk (g : G) : φ G x (QuotientGroup.mk g) = g • x :=
 theorem ofQuotientStabilizer_mem_orbit (g) : φ G x g ∈ orbit G x :=
   Quotient.inductionOn' g fun g => ⟨g, rfl⟩
 
-lemma idyay : 1=1 := by sorry
+lemma idyay : 1 = 1 := by rfl
 
 /- ## Part 1-/
 
@@ -56,14 +58,23 @@ theorem injective_φ : Function.Injective (φ G x) :=  by
 
 example (N : Subgroup G)[Subgroup.Normal N](n : G ⧸ N) := by exact X
 
-lemma surjective_φ : Function.Surjective (φ G x) := by
+
+
+lemma surjective_φ: Function.Surjective (φ G x) := by
 simp[Function.Surjective]
 intro p
+use a
 sorry
 
 
+def orbit_stab_bij : ( G ⧸ stabilizer G x ≃ orbit G x) :=  by
+sorry
 
+/- # Part 2-/
 
+/-lemma hello : Fintype.card (orbit G x )= |G|/|stabilizer G x| := by sorry-/
 
-/-# Final Theorem-/
-theorem orbit_stab : (|X| = ∑ G.orbit(x.i)) (|X|= ∑[G : x.i.stab]) := by sorry
+/- # Part 3 -/
+variable(n : Set u)
+
+lemma plswork : Cardinal.mk ↑(⋃ i, f i) = ∑'i, Nat.card f i := by sorry
