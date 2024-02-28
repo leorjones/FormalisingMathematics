@@ -70,18 +70,27 @@ theorem ofQuotientStabilizer_mem_orbit2 (g) : φ G x g ∈ orbit G x :=
 
 def f : G ⧸ stabilizer G x → ↑(orbit G x):= fun g => ⟨φ G x g, ofQuotientStabilizer_mem_orbit2 G x g⟩
 
+theorem f_mk (g : G) : f G x (QuotientGroup.mk g) = g • x :=
+  rfl
+
 lemma hewwo :(Function.Injective (φ G x)) →  (Function.Injective (f G x)):= by
 intro p
 sorry
 
+lemma oks : p ∈ orbit G x → ∃ g : G, p = g • x := by apply?
+
 lemma surjective_φ: Function.Surjective (f G x) := by
 simp[Function.Surjective]
 intros p q
-use a
+have h : p ∈ orbit G x → ∃ g : G, p = g • x := by sorry
+apply h at q
+cases' q with blob tob
+use blob
 ext
 simp
+rw [tob, f_mk]
 
-sorry
+
 
 noncomputable def orbit_stab_bij : ( G ⧸ stabilizer G x ≃ orbit G x) :=  by
 apply Equiv.ofBijective
