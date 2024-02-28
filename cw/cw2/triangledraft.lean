@@ -2,60 +2,48 @@ import Mathlib.Tactic
 
 variable (n : ℕ)
 
-def n_set : Finset ℕ := Finset.range n
-
-def D₃ :
-/- inductive type Dihedral Group n-/
-
-import Mathlib.Tactic
-
-variable (n : ℕ)
-
-def N7 := ℕ × ℕ × ℕ × ℕ × ℕ × ℕ × ℕ
-
-def subset_max_N7 (n : ℕ) : set (ℕ × ℕ × ℕ × ℕ × ℕ × ℕ × ℕ) :=
-  { x | let (a1, a2, a3, a4, a5, a6, a7) := x
-         a1 ≤ n ∧ a2 ≤ n ∧ a3 ≤ n ∧ a4 ≤ n ∧ a5 ≤ n ∧ a6 ≤ n ∧ a7 ≤ n }
-
-
-def subset_max_N7 (n : ℕ) : Set (ℕ × ℕ × ℕ × ℕ × ℕ × ℕ × ℕ) :=
-  { x | ∀ i ∈ Finset.range 7, (x.nth i).get_or_else 0 ≤ n }
-def subset_max_N7 (n : ℕ) : Set N7 :=
-  { x | ∀ i : Fin 7, x.nth i < n }
-
-import Mathlib.Tactic
-
-variable (a1 a2 a3 a4 a5 a6 a7 : ℕ )
-variable (n : ℕ)
--- Define a predicate to check if the list contains elements a1 through a7 and the maximum is less than 7
-def valid_list (l : List ℕ) : Prop :=
-  l = [a1, a2, a3, a4, a5, a6, a7] ∧ ∀ x ∈ l, x < n
-
--- Define the set with the combined condition
-def mySet : Set (List ℕ) :=
-  { lst | valid_list lst }
-
-  import Mathlib.Tactic
-
-variable (n : ℕ)
-
 def n_set : Set ℕ := Finset.range n
+
+variable (a1 a2 a3 b1 b2 b3 c1 : n_set n)
 
 def n7 := n_set (n) × n_set (n) × n_set (n) × n_set (n) ×  n_set (n) × n_set (n) × n_set (n)
 
-def permute_function (x : n7) :
+def example_element : n7 n := (a1, a2, a3, b1, b2, b3, c1)
 
-structure pattern where
-c1 : ℕ
-c2 : ℕ
-c3 : ℕ
-c4 : ℕ
-c5 : ℕ
-c6 : ℕ
-c7 : ℕ
-bounded_components : List.maximum [c1, c2, c3, c4, c5, c6, c7] ≤ n
+inductive D₃
+| e : D₃     -- Identity
+| r₀ : D₃    -- Rotation by 120 degrees clockwise
+| r₁  : D₃   -- Rotation by 240 degrees clockwise
+| s₀  : D₃   -- Reflect about line through top vertex
+| s₁  : D₃   -- Reflect about line through left vertex
+| s₂  : D₃   -- Reflect about line through right vertex
 
-def N7 := ℕ × ℕ × ℕ × ℕ × ℕ × ℕ × ℕ
+def rotation_funct : n7 n → n7 n
+| ⟨a1, a2, a3, b1, b2, b3, c1 ⟩ => (a2, a3, a1, b2, b3, b1, c1)
 
-def subset_max_N7 (n : ℕ) : Set N7 :=
-  { x | ∀ i ∈ Finset.range 7, x.nth i ≤ n }
+def reflection_0_funct : n7 n → n7 n
+| ⟨a1, a2, a3, b1, b2, b3, c1 ⟩ => (a1, a3, a2, b3, b2, b1, c1)
+
+def reflection_1_funct : n7 n → n7 n
+| ⟨a1, a2, a3, b1, b2, b3, c1 ⟩ => (a3, a2, a1, b2, b1, b3, c1)
+
+def reflection_2_funct : n7 n → n7 n
+| ⟨a1, a2, a3, b1, b2, b3, c1 ⟩ => (a2, a1, a3, b1, b3, b2, c1)
+
+def myaction2: D₃ → (n7 n → n7 n)
+| D₃.e => id
+| D₃.r₀ => rotation_funct n
+| D₃.r₁ => (rotation_funct n) ∘ (rotation_funct n)
+| D₃.s₀ => reflection_0_funct n
+| D₃.s₁ => reflection_1_funct n
+| D₃.s₂ => reflection_2_funct n
+
+def myaction3: DihedralGroup 3 → (n7 n → n7 n)
+| D₃.e => id
+| D₃.r₀ => rotation_funct n
+| D₃.r₁ => (rotation_funct n) ∘ (rotation_funct n)
+| D₃.s₀ => reflection_0_funct n
+| D₃.s₁ => reflection_1_funct n
+| D₃.s₂ => reflection_2_funct n
+
+instance : mul_action D₃ n7 :=
