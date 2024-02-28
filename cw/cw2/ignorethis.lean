@@ -11,8 +11,8 @@ open BigOperators
 
 theorem finite_union_disjoint_card : (∀ (n : ℕ), Finset.card S = n) → (∀ s ∈ S, ∀ t ∈ S, s ≠ t → Disjoint s t) → (∑ s in S, Finset.card s = Finset.card (Finset.sup S id)) := by
 intro hn hdisjoint
+
+sorry
 simp [Finset.sup_set_eq_biUnion S id]
 simp [Finset.sup_def]
-sorry
-
 apply [Finset.card_biUnion] at hdisjoint

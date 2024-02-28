@@ -18,6 +18,15 @@ inductive D₃
 | s₁  : D₃   -- Reflect about line through left vertex
 | s₂  : D₃   -- Reflect about line through right vertex
 
+structure MyFiniteGroup :=
+(elements : Type)
+(mult_table : (elements ×  elements) → elements)
+(table_prop : ∀ (a b : elements), mult_table (a, b) ∈ [e, r₀, r₁, s₀, s₁, s₂])
+
+def mult_table : (D₃ × D₃) → D₃
+| (D₃.e, g) => g
+
+
 def rotation_funct : n7 n → n7 n
 | ⟨a1, a2, a3, b1, b2, b3, c1 ⟩ => (a2, a3, a1, b2, b3, b1, c1)
 
@@ -38,12 +47,20 @@ def myaction2: D₃ → (n7 n → n7 n)
 | D₃.s₁ => reflection_1_funct n
 | D₃.s₂ => reflection_2_funct n
 
-def myaction3: DihedralGroup 3 → (n7 n → n7 n)
+lemma identity_action (x : n7 n) : myaction2 n D₃.e x = x := by exact rfl
+
+lemma compatibility_action (g1 g2 : D₃) (x : n7 n) :
+  myaction2 n g1 (myaction2 n g2 x) = myaction2 n (g1 * g2) x := by
+sorry
+
+def myaction3: DihedralGroup (3 : ℕ) → (n7 n → n7 n)
 | D₃.e => id
 | D₃.r₀ => rotation_funct n
 | D₃.r₁ => (rotation_funct n) ∘ (rotation_funct n)
 | D₃.s₀ => reflection_0_funct n
 | D₃.s₁ => reflection_1_funct n
 | D₃.s₂ => reflection_2_funct n
+
+
 
 instance : mul_action D₃ n7 :=
