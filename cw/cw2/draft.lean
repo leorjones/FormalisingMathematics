@@ -78,6 +78,8 @@ lemma surjective_φ: Function.Surjective (f G x) := by
 simp[Function.Surjective]
 intros p q
 use a
+ext
+simp
 
 sorry
 
