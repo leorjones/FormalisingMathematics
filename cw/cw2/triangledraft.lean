@@ -34,3 +34,28 @@ def valid_list (l : List ℕ) : Prop :=
 -- Define the set with the combined condition
 def mySet : Set (List ℕ) :=
   { lst | valid_list lst }
+
+  import Mathlib.Tactic
+
+variable (n : ℕ)
+
+def n_set : Set ℕ := Finset.range n
+
+def n7 := n_set (n) × n_set (n) × n_set (n) × n_set (n) ×  n_set (n) × n_set (n) × n_set (n)
+
+def permute_function (x : n7) :
+
+structure pattern where
+c1 : ℕ
+c2 : ℕ
+c3 : ℕ
+c4 : ℕ
+c5 : ℕ
+c6 : ℕ
+c7 : ℕ
+bounded_components : List.maximum [c1, c2, c3, c4, c5, c6, c7] ≤ n
+
+def N7 := ℕ × ℕ × ℕ × ℕ × ℕ × ℕ × ℕ
+
+def subset_max_N7 (n : ℕ) : Set N7 :=
+  { x | ∀ i ∈ Finset.range 7, x.nth i ≤ n }
