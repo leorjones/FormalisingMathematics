@@ -23,10 +23,26 @@ structure MyFiniteGroup :=
 (mult_table : (elements ×  elements) → elements)
 (table_prop : ∀ (a b : elements), mult_table (a, b) ∈ [e, r₀, r₁, s₀, s₁, s₂])
 
+/- Would love to use indexing such as by naming id as r₀ and having the others
+as r₁ and r₂ so i can use rᵢ*rⱼ = r(i+j mod 3) and so on -/
 def mult_table : (D₃ × D₃) → D₃
 | (D₃.e, g) => g
-
-
+| (g, D₃.e) => g
+| (D₃.r₀, D₃.r₀) => D₃.r₁
+| (D₃.r₀, D₃.r₁) => D₃.e
+| (D₃.r₀, D₃.s₀) => D₃.s₂
+| (D₃.r₀, D₃.s₁) => D₃.s₀
+| (D₃.r₀, D₃.s₂) => D₃.s₁
+| (D₃.r₁, D₃.r₀) => D₃.e
+| (D₃.r₁, D₃.r₁) => D₃.r₀
+| (D₃.r₁, D₃.s₀) => D₃.s₁
+| (D₃.r₁, D₃.s₁) => D₃.s₂
+| (D₃.r₁, D₃.s₂) => D₃.s₀
+| (D₃.s₀, D₃.r₀) => D₃.s₁
+| (D₃.s₀, D₃.r₁) => D₃.s₂
+| (D₃.s₀, D₃.s₀) => D₃.e
+| (D₃.s₀, D₃.s₁) => D₃.r₀
+| (D₃.s₀, D₃.s₂) => D₃.r₁
 def rotation_funct : n7 n → n7 n
 | ⟨a1, a2, a3, b1, b2, b3, c1 ⟩ => (a2, a3, a1, b2, b3, b1, c1)
 
@@ -52,15 +68,5 @@ lemma identity_action (x : n7 n) : myaction2 n D₃.e x = x := by exact rfl
 lemma compatibility_action (g1 g2 : D₃) (x : n7 n) :
   myaction2 n g1 (myaction2 n g2 x) = myaction2 n (g1 * g2) x := by
 sorry
-
-def myaction3: DihedralGroup (3 : ℕ) → (n7 n → n7 n)
-| D₃.e => id
-| D₃.r₀ => rotation_funct n
-| D₃.r₁ => (rotation_funct n) ∘ (rotation_funct n)
-| D₃.s₀ => reflection_0_funct n
-| D₃.s₁ => reflection_1_funct n
-| D₃.s₂ => reflection_2_funct n
-
-
 
 instance : mul_action D₃ n7 :=
