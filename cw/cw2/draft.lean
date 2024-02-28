@@ -25,8 +25,6 @@ Quotient.liftOn' g (· • x) fun g1 g2 H =>
 theorem φ_mk (g : G) : φ G x (QuotientGroup.mk g) = g • x :=
   rfl
 
-theorem ofQuotientStabilizer_mem_orbit (g) : φ G x g ∈ orbit G x :=
-  Quotient.inductionOn' g fun g => ⟨g, rfl⟩
 
 lemma idyay : 1 = 1 := by rfl
 
@@ -40,6 +38,8 @@ rw [← p, smul_smul a⁻¹ a x, inv_mul_self, one_smul] at h
 exact h
 
 example :  a • (b • x)=  (a * b) • x := by exact smul_smul a b x
+
+
 
 theorem injective_φ : Function.Injective (φ G x) :=  by
   simp [Function.Injective]
@@ -59,16 +59,36 @@ theorem injective_φ : Function.Injective (φ G x) :=  by
 example (N : Subgroup G)[Subgroup.Normal N](n : G ⧸ N) := by exact X
 
 
+---lemma range_φ : (φ G x).range = orbit G x := by sorry
 
-lemma surjective_φ: Function.Surjective (φ G x) := by
-simp[Function.Surjective]
+theorem ofQuotientStabilizer_mem_orbit2 (g) : φ G x g ∈ orbit G x :=
+  Quotient.inductionOn' g fun g => ⟨g, rfl⟩
+
+
+
+
+
+def f : G ⧸ stabilizer G x → ↑(orbit G x):= fun g => ⟨φ G x g, ofQuotientStabilizer_mem_orbit2 G x g⟩
+
+lemma hewwo :(Function.Injective (φ G x)) →  (Function.Injective (f G x)):= by
 intro p
+sorry
+
+lemma surjective_φ: Function.Surjective (f G x) := by
+simp[Function.Surjective]
+intros p q
 use a
+
 sorry
 
-
-def orbit_stab_bij : ( G ⧸ stabilizer G x ≃ orbit G x) :=  by
-sorry
+noncomputable def orbit_stab_bij : ( G ⧸ stabilizer G x ≃ orbit G x) :=  by
+apply Equiv.ofBijective
+simp [Function.Bijective]
+constructor
+apply hewwo
+apply injective_φ
+apply surjective_φ
+exact g
 
 /- # Part 2-/
 
@@ -77,4 +97,4 @@ sorry
 /- # Part 3 -/
 variable(n : Set u)
 
-lemma plswork : Cardinal.mk ↑(⋃ i, f i) = ∑'i, Nat.card f i := by sorry
+---lemma plswork : Cardinal.mk ↑(⋃ i, f i) = ∑'i, Nat.card f i := by sorry
