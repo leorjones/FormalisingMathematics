@@ -7,7 +7,6 @@ deriving DecidableEq, Fintype
 
 namespace MyD₃
 
-
 def D₃GroupLaw : MyD₃ → MyD₃ → MyD₃
   | r i, r j => r (i + j)
   | r i, sr j => sr (j - i)
@@ -106,8 +105,15 @@ lemma assoc_action (g₁ g₂ : MyD₃)(x : n7 n) :
 (transform_action n) (g₁ * g₂) x = (transform_action n g₁) (transform_action n g₂ x) := by
 sorry
 
-
 instance : MulAction MyD₃ (n7 n) where
   smul := transform_action n
   one_smul := identity_action n
   mul_smul := assoc_action n
+
+lemma r0_fixed : MulAction.fixedBy (n7 n) (r 0) = n7 n := by
+simp [MulAction.fixedBy]
+have r0_id (y : n7 n) : r 0 • y = y := by rfl
+sorry
+
+lemma r1_fixed : MulAction.fixedBy (n7 n) (r 1) =
+{(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}:= by
