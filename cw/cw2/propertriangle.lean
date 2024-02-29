@@ -72,7 +72,7 @@ variable (n : ℕ)
 def n_set : Set ℕ := Finset.range n
 
 variable (a1 a2 a3 b1 b2 b3 c1 : n_set n)
-
+#check Set.pi (@Finset.univ (Fin 7) _).toSet (fun _ => n_set n)
 def n7 := n_set (n) × n_set (n) × n_set (n) × n_set (n) ×  n_set (n) × n_set (n) × n_set (n)
 
 def example_element : n7 n := (a1, a2, a3, b1, b2, b3, c1)
@@ -110,10 +110,15 @@ instance : MulAction MyD₃ (n7 n) where
   one_smul := identity_action n
   mul_smul := assoc_action n
 
-lemma r0_fixed : MulAction.fixedBy (n7 n) (r 0) = n7 n := by
+theorem trans_action_def (g : MyD₃)(x : n7 n): g • x = transform_action n g x := by rfl
+
+lemma r0_fixed : MulAction.fixedBy (n7 n) (r 0) = Set.univ := by
 simp [MulAction.fixedBy]
 have r0_id (y : n7 n) : r 0 • y = y := by rfl
-sorry
+simp_all
 
 lemma r1_fixed : MulAction.fixedBy (n7 n) (r 1) =
 {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}:= by
+simp [MulAction.fixedBy]
+simp [trans_action_def]
+sorry
