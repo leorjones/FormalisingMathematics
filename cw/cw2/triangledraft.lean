@@ -18,6 +18,16 @@ inductive D₃
 | s₁  : D₃   -- Reflect about line through left vertex
 | s₂  : D₃   -- Reflect about line through right vertex
 
+def D₃id : D₃ := D₃.e
+
+def D₃inv : D₃ → D₃
+| D₃.e => D₃.e
+| D₃.r₀ => D₃.r₁
+| D₃.r₁ => D₃.r₀
+| D₃.s₀ => D₃.s₀
+| D₃.s₁ => D₃.s₁
+| D₃.s₂ => D₃.s₂
+
 structure MyFiniteGroup :=
 (elements : Type)
 (mult_table : (elements ×  elements) → elements)
@@ -25,7 +35,7 @@ structure MyFiniteGroup :=
 
 /- Would love to use indexing such as by naming id as r₀ and having the others
 as r₁ and r₂ so i can use rᵢ*rⱼ = r(i+j mod 3) and so on -/
-def mult_table : (D₃ × D₃) → D₃
+def D₃_mult_table : (D₃ × D₃) → D₃
 | (D₃.e, g) => g
 | (g, D₃.e) => g
 | (D₃.r₀, D₃.r₀) => D₃.r₁
@@ -43,6 +53,34 @@ def mult_table : (D₃ × D₃) → D₃
 | (D₃.s₀, D₃.s₀) => D₃.e
 | (D₃.s₀, D₃.s₁) => D₃.r₀
 | (D₃.s₀, D₃.s₂) => D₃.r₁
+| (D₃.s₁, D₃.r₀) => D₃.s₂
+| (D₃.s₁, D₃.r₁) => D₃.s₁
+| (D₃.s₁, D₃.s₀) => D₃.r₁
+| (D₃.s₁, D₃.s₁) => D₃.e
+| (D₃.s₁, D₃.s₂) => D₃.r₀
+| (D₃.s₂, D₃.r₀) => D₃.s₀
+| (D₃.s₂, D₃.r₁) => D₃.s₁
+| (D₃.s₂, D₃.s₀) => D₃.r₀
+| (D₃.s₂, D₃.s₁) => D₃.r₁
+| (D₃.s₂, D₃.s₂) => D₃.e
+
+
+lemma obvious : D₃.e = (e : D₃) := by
+sorry
+
+theorem D₃_table_prop (g₁ g₂ : D₃) : D₃_mult_table (g₁, g₂) ∈ [e, r₀, r₁, s₀, s₁, s₂] := by
+cases g₁; cases g₂; simp [D₃_mult_table]
+· left
+sorry
+
+def D₃Group : MyFiniteGroup :=
+{ elements := D₃,
+  mult_table := D₃_mult_table,
+  table_prop := D₃_table_prop }
+
+instance Group D₃Group :
+
+
 def rotation_funct : n7 n → n7 n
 | ⟨a1, a2, a3, b1, b2, b3, c1 ⟩ => (a2, a3, a1, b2, b3, b1, c1)
 
@@ -66,7 +104,8 @@ def myaction2: D₃ → (n7 n → n7 n)
 lemma identity_action (x : n7 n) : myaction2 n D₃.e x = x := by exact rfl
 
 lemma compatibility_action (g1 g2 : D₃) (x : n7 n) :
-  myaction2 n g1 (myaction2 n g2 x) = myaction2 n (g1 * g2) x := by
+  myaction2 n g1 (myaction2 n g2 x) = myaction2 n (D₃_mult_table (g1, g2)) x := by
+
 sorry
 
 instance : mul_action D₃ n7 :=
