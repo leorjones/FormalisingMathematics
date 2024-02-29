@@ -70,7 +70,6 @@ theorem f_mk (g : G) : f G x (QuotientGroup.mk g) = g • x :=
   rfl
 
 variable {G} (g)
-lemma boo2 (x:X)(g:G): ↑(orbit G x) := by exact Set.rangeFactorization (fun m => m • x) g
 lemma f_mk' (g:G) : f G x (QuotientGroup.mk g) = ⟨g • x, mem_orbit x g⟩ := rfl
 
 set_option pp.proofs.withType false
@@ -114,6 +113,8 @@ simp
 rw [tob, f_mk]
 
 
+theorem orbit_bij : Function.Bijective (f G x) := by
+  simp[Function.Bijective, injective_f, surjective_φ]
 
 noncomputable def orbit_stab_bij : ( G ⧸ stabilizer G x ≃ orbit G x) :=  by
 apply Equiv.ofBijective
@@ -127,11 +128,11 @@ apply surjective_φ
 /- # Part 2-/
 
 variable (N : Subgroup G)[Subgroup.Normal N](x : X)
-variable (α β : Type*)[Fintype α][Fintype β]
+variable (α β : Type)[Fintype α][Fintype β]
 theorem quotient_order [Fintype G][Fintype N][Fintype (G ⧸ N)]: Fintype.card G / Fintype.card N = Fintype.card (G ⧸ N) := by
 sorry
 
-lemma bijection_imp_eq_card (f : α → β)(hf : Function.Bijective f)[Fintype (Set.range f)]:
+lemma bijection_imp_eq_card (f : α → β)(hf : Function.Bijective f) [Fintype (Set.range f)]:
 Fintype.card α = Fintype.card β := by
 have hf_copy : Function.Bijective f := by exact hf
 rw [Function.Bijective] at hf
@@ -145,16 +146,25 @@ rw [← h_f_imag_card]
 exact (set_fintype_card_eq_univ_iff (Set.range f)).mpr h_f_imag_eq_β
 /- i found that from doing exact? -/
 
+lemma help [Fintype G][Fintype N][Fintype (G ⧸ N)][Fintype X](ψ : G⧸N → X)(h : Function.Bijective ψ): Fintype.card (G ⧸ N) = Fintype.card X := by
+  apply bijection_imp_eq_card (G⧸N)  X ψ G x h
+  sorry
+
+
 variable (X)
 local notation "Φ" => Quotient <| orbitRel G X
 
+lemma fin_μ  [Fintype G](μ: G ⧸ stabilizer G x → orbit G x): Fintype (Set.range μ) := by sorry
+
+lemma fin_f [Fintype G]: Fintype (Set.range (f G x)) := by sorry
+
+
 lemma orbit_eq_card (x:X)[Fintype G][Fintype X][MulAction G X][Fintype (G ⧸ stabilizer G x)][∀ x : X, Fintype <| stabilizer G x][Fintype (orbit G x)]:
 Fintype.card (G)/ Fintype.card (stabilizer G x) = Fintype.card ↑(orbit G x) := by
-  have h1 : Function.Bijective (f G x) := by sorry
-  have h2: Fintype.card (G)/ Fintype.card (stabilizer G x) = Fintype.card (G ⧸ stabilizer G x) := by sorry
+  have h1 : Function.Bijective (f G x) := by apply orbit_bij
+  have h2: Fintype.card (G)/ Fintype.card (stabilizer G x) = Fintype.card (G ⧸ stabilizer G x) := by apply quotient_order
   rw [h2]
-  apply bijection_imp_eq_card
-
+  apply bijection_imp_eq_card (G ⧸ stabilizer G x) (orbit G x) (f G x) h1
   sorry
 
 /-lemma hello : Fintype.card (orbit G x )= |G|/|stabilizer G x| := by sorry-/
@@ -166,7 +176,11 @@ Fintype.card (G)/ Fintype.card (stabilizer G x) = Fintype.card ↑(orbit G x) :=
 open BigOperators
 
 /-# Burnsides Lemma -/
-def bijburnside : (Σg : G, fixedBy G g) ≃ (Prod Φ G) := by sorry
+def bjburnside : (Σg : G, fixedBy G g) ≃ (Prod Φ G) := by
+  apply Equiv.ofBijective
+  simp [Function.Bijective]
+  sorry
+  sorry
 
 variable(S : Type)
 theorem burnside [Fintype G][Fintype S][∀ g : G , Fintype <| fixedBy G g]:
