@@ -146,26 +146,21 @@ rw [← h_f_imag_card]
 exact (set_fintype_card_eq_univ_iff (Set.range f)).mpr h_f_imag_eq_β
 /- i found that from doing exact? -/
 
-lemma help [Fintype G][Fintype N][Fintype (G ⧸ N)][Fintype X](ψ : G⧸N → X)(h : Function.Bijective ψ): Fintype.card (G ⧸ N) = Fintype.card X := by
-  apply bijection_imp_eq_card (G⧸N)  X ψ G x h
-  sorry
-
 
 variable (X)
 local notation "Φ" => Quotient <| orbitRel G X
 
-lemma fin_μ  [Fintype G](μ: G ⧸ stabilizer G x → orbit G x): Fintype (Set.range μ) := by sorry
-
 lemma fin_f [Fintype G]: Fintype (Set.range (f G x)) := by sorry
 
 
-lemma orbit_eq_card (x:X)[Fintype G][Fintype X][MulAction G X][Fintype (G ⧸ stabilizer G x)][∀ x : X, Fintype <| stabilizer G x][Fintype (orbit G x)]:
-Fintype.card (G)/ Fintype.card (stabilizer G x) = Fintype.card ↑(orbit G x) := by
+lemma orbit_eq_card (x : X)[Fintype G][Fintype X][MulAction G X][Fintype (G ⧸ stabilizer G x)][∀ x : X, Fintype <| stabilizer G x][Fintype (orbit G x)]:
+Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card ↑(orbit G x) := by
   have h1 : Function.Bijective (f G x) := by apply orbit_bij
-  have h2: Fintype.card (G)/ Fintype.card (stabilizer G x) = Fintype.card (G ⧸ stabilizer G x) := by apply quotient_order
+  have h2: Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card (G ⧸ stabilizer G x) := by apply quotient_order
   rw [h2]
+  let foo : Fintype ↑(Set.range (f G x)) := fin_f _ _
   apply bijection_imp_eq_card (G ⧸ stabilizer G x) (orbit G x) (f G x) h1
-  sorry
+
 
 /-lemma hello : Fintype.card (orbit G x )= |G|/|stabilizer G x| := by sorry-/
 
@@ -176,12 +171,21 @@ Fintype.card (G)/ Fintype.card (stabilizer G x) = Fintype.card ↑(orbit G x) :=
 open BigOperators
 
 /-# Burnsides Lemma -/
-def bjburnside : (Σg : G, fixedBy G g) ≃ (Prod Φ G) := by
-  apply Equiv.ofBijective
-  simp [Function.Bijective]
-  sorry
-  sorry
+-- def bjburnside : (Σg : G, fixedBy G g) ≃ (Prod Φ G) := by
+--   apply Equiv.ofBijective
+--   simp [Function.Bijective]
+--   sorry
+--   sorry
 
 variable(S : Type)
-theorem burnside [Fintype G][Fintype S][∀ g : G , Fintype <| fixedBy G g]:
-(Fintype.card S / Fintype.card G) * Fintype.card G = (∑ g : G, Fintype.card (fixedBy G g)) := by sorry
+
+lemma boo [Fintype G][Fintype X][∀ x : X, Fintype <| stabilizer G x][∀ g : G , Fintype <| fixedBy G g]:
+∑ g : G,Fintype.card (fixedBy G g) = ∑ x : X, Fintype.card (stabilizer G x) := by sorry
+
+lemma boo2 [Fintype G][Fintype X][∀ x : X, Fintype <| stabilizer G x] : (Fintype.card X / Fintype.card G) = ∑ x : X, 1 / Fintype.card (stabilizer G x)  := by sorry
+
+
+theorem burnside [Fintype G][Fintype X][∀ g : G , Fintype <| fixedBy G g][∀ x : X, Fintype <| stabilizer G x]:
+(Fintype.card X / Fintype.card G) = (1 / Fintype.card G )* (∑ g : G, Fintype.card (fixedBy G g)) := by
+ rw [boo2]
+ sorry
