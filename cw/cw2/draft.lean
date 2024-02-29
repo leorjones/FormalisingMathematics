@@ -11,15 +11,13 @@ variable {a b : G}
 
 
 
-
-
-open QuotientGroup MulAction
+open MulAction
 
 
 def φ (g : G ⧸ stabilizer G x) : X :=
 Quotient.liftOn' g (· • x) fun g1 g2 H =>
     calc
-      g1 • x = g1 • (g1⁻¹ * g2) • x := congr_arg _ (leftRel_apply.mp H).symm
+      g1 • x = g1 • (g1⁻¹ * g2) • x := congr_arg _ (QuotientGroup.leftRel_apply.mp H).symm
       _ = g2 • x := by rw [smul_smul, mul_inv_cancel_left]
 
 theorem φ_mk (g : G) : φ G x (QuotientGroup.mk g) = g • x :=
@@ -71,31 +69,32 @@ def f : G ⧸ stabilizer G x → ↑(orbit G x):= fun g => ⟨φ G x g, ofQuotie
 theorem f_mk (g : G) : f G x (QuotientGroup.mk g) = g • x :=
   rfl
 
--- lemma hi2 :(f G x a = f G x b) → (a⁻¹*b ∈ MulAction.stabilizer G x):= by
--- intro p
--- rw [f_mk G x a] at p
--- have  h: (a⁻¹ * b) • x = a⁻¹  • (b • x) := by rw [mul_smul a⁻¹ b x]
--- rw [← p, smul_smul a⁻¹ a x, inv_mul_self, one_smul] at h
--- exact h
+lemma hi2 :(f G x a = f G x b) → (a⁻¹*b ∈ stabilizer G x):= by
+intro p
+repeat rw [f_mk] at p
+have  h: (a⁻¹ * b) • x = a⁻¹  • (b • x) := by rw [mul_smul a⁻¹ b x]
 
--- theorem injective_f : Function.Injective (f G x) :=  by
---   simp [Function.Injective]
---   intros p q r
---   obtain ⟨a, ha⟩ := Quot.exists_rep p
---   obtain ⟨b, hb⟩ := Quot.exists_rep q
---   have ha: ↑a = p := by exact ha
---   have hb: ↑b = q := by exact hb
---   have r2: f G x ↑a = f G x ↑b := by
---     rw [←ha, ←hb] at r
---     exact r
---   apply hi at r2
---   rw [←QuotientGroup.eq'] at r2
---   rw [←ha, ←hb]
---   exact r2
+rw [← p, smul_smul a⁻¹ a x, inv_mul_self, one_smul] at h
+exact h
+
+theorem injective_f : Function.Injective (f G x) :=  by
+  simp [Function.Injective]
+  intros p q r
+  obtain ⟨a, ha⟩ := Quot.exists_rep p
+  obtain ⟨b, hb⟩ := Quot.exists_rep q
+  have ha: ↑a = p := by exact ha
+  have hb: ↑b = q := by exact hb
+  have r2: f G x ↑a = f G x ↑b := by
+    rw [←ha, ←hb] at r
+    exact r
+  apply hi2 at r2
+  rw [←QuotientGroup.eq'] at r2
+  rw [←ha, ←hb]
+  exact r2
+
 
 lemma hewwo :(Function.Injective (φ G x)) →  (Function.Injective (f G x)):= by
 intro p
-
 sorry
 
 lemma oks : p ∈ orbit G x → ∃ g : G, p = g • x := by apply?
@@ -103,7 +102,7 @@ lemma oks : p ∈ orbit G x → ∃ g : G, p = g • x := by apply?
 lemma surjective_φ: Function.Surjective (f G x) := by
 simp[Function.Surjective]
 intros p q
-have h : p ∈ orbit G x → ∃ g : G, p = g • x := by sorry
+have h : p ∈ orbit G x → ∃ g : G, p = g • x := by apply oks
 apply h at q
 cases' q with blob tob
 use blob
@@ -142,10 +141,10 @@ rw [← h_f_imag_card]
 exact (set_fintype_card_eq_univ_iff (Set.range f)).mpr h_f_imag_eq_β
 /- i found that from doing exact? -/
 
-variable (Y)
-local notation "Ω" => Quotient <| orbitRel G Y
+variable (X)
+local notation "Φ" => Quotient <| orbitRel G X
 
-lemma orbit_eq_card [Fintype G][Fintype Y][Fintype Ω][∀ y : Y, Fintype <| stabilizer G y]{ψ:Ω → Y}[Fintype (orbit G y)]:
+lemma orbit_eq_card [Fintype G][Fintype X][∀ x : X, Fintype <| stabilizer G x][Fintype (orbit G x)]:
 Fintype.card (G)/ Fintype.card (stabilizer G x) = Fintype.card ↑(orbit G x) := by sorry
 
 /-lemma hello : Fintype.card (orbit G x )= |G|/|stabilizer G x| := by sorry-/
@@ -154,3 +153,10 @@ Fintype.card (G)/ Fintype.card (stabilizer G x) = Fintype.card ↑(orbit G x) :=
 variable(n : Set u)
 
 ---lemma plswork : Cardinal.mk ↑(⋃ i, f i) = ∑'i, Nat.card f i := by sorry
+
+
+/-# Burnsides Lemma -/
+def bijburnside : (Σg : G, fixedBy G g) ≃ (Prod Φ G) := by sorry
+
+theorem burnside [Fintype G][Fintype S][∀ g : G , Fintype <| fixedBy G g]:
+(Fintype.card S / Fintype.card G) * Fintype.card G = (∑ g : G, Fintype.card (fixedBy G g)) := by sorry
