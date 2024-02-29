@@ -151,6 +151,7 @@ exact (set_fintype_card_eq_univ_iff (Set.range f)).mpr h_f_imag_eq_β
 
 variable (X)
 local notation "Φ" => Quotient <| orbitRel G X
+variable [Fintype Φ]
 
 lemma fin_f [Fintype G]: Fintype (Set.range (f G x)) := by exact Fintype.ofFinite (Set.range (f G x))
 
@@ -184,21 +185,22 @@ lemma boo [∀ g : G , Fintype <| fixedBy G g]:
 
 
 
-lemma boo2  [∀x : X, Fintype (orbit G x)] :(Fintype.card X / Fintype.card G) = ∑ x : X, 1 / (Fintype.card (orbit G x)) := by sorry
+lemma boo2  [Fintype Φ][∀x : X, Fintype (orbit G x)] :(Fintype.card Φ) = ∑ x : X, 1 / (Fintype.card (orbit G x)) := by sorry
 
 lemma boo3 [∀ x : X, Fintype <| stabilizer G x]
 : ∑ x : X, 1 / Fintype.card (orbit G x) = ∑ x : X, 1 / (Fintype.card (G) / Fintype.card (stabilizer G x)):= by sorry
 
 lemma bro  : 1 / (Fintype.card (X)/Fintype.card (G)) = Fintype.card (G) / Fintype.card (X) := by sorry
 
-def c : ℚ := Fintype.card X
-def d : ℚ := Fintype.card G
-def e := (Fintype.card (stabilizer G x) : ℚ)
-def h :=  (Fintype.card (fixedBy G g) : ℚ)
+-- def c : ℚ := Fintype.card X
+-- def d : ℚ := Fintype.card G
+-- def e := (Fintype.card (stabilizer G x) : ℚ)
+-- def h :=  (Fintype.card (fixedBy G g) : ℚ)
 
 
-theorem burnside [∀ g : G , Fintype <| fixedBy G g]: ( Fintype.card X / Fintype.card G ) = (1 / Fintype.card G ) * (∑ g : G, Fintype.card (fixedBy G g)) := by
+theorem burnside [Fintype Φ][∀ g : G , Fintype <| fixedBy G g]: (Fintype.card Φ) = (1 / Fintype.card G ) * (∑ g : G, Fintype.card (fixedBy G g)) := by
  rw [boo2]
  rw [boo3]
  simp [bro]
+ rw [← boo X]
  sorry
