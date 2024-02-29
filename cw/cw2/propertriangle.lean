@@ -7,26 +7,67 @@ deriving DecidableEq, Fintype
 
 namespace MyD₃
 
-def D₃GroupLaw : MyD₃ → MyD₃ → MyD₃
+def mul : MyD₃ → MyD₃ → MyD₃
   | r i, r j => r (i + j)
   | r i, sr j => sr (j - i)
   | sr i, r j => sr (i + j)
   | sr i, sr j => r (j - i)
 
-def D₃id : MyD₃ := r 0
+def one : MyD₃ := r 0
 
-def D₃inv : MyD₃ → MyD₃
+def inv : MyD₃ → MyD₃
   | r i => r (-i)
   | sr i => sr i
 
+
+lemma D₃assoc (a b c : MyD₃) : mul (mul a  b)  c =  mul a  (mul b  c) := by
+cases' a with a1 a2
+cases' b with b1 b2
+cases' c with c1 c2
+simp [mul]
+ring
+simp [mul]
+ring
+cases' c with c1 c2
+simp [mul]
+ring
+simp [mul]
+ring
+cases' b with b1 b2
+cases' c with c1 c2
+simp [mul]
+ring
+simp [mul]
+ring
+cases' c with c1 c2
+simp [mul]
+ring
+simp [mul]
+ring
+
+lemma D₃one_mul (g : MyD₃): mul one g = g := by
+cases' g with g1 g2
+simp [one, mul]
+simp [one, mul]
+
+lemma D₃mul_one (g : MyD₃): mul g one  = g := by
+cases' g with g1 g2
+simp [one, mul]
+simp [one, mul]
+
+lemma D₃mul_left_inv (g : MyD₃) : mul (inv g) g = one := by
+cases' g with g1 g2
+simp [inv, mul, one]
+simp [inv, mul, one]
+
 instance : Group MyD₃ where
-  mul := D₃GroupLaw
-  mul_assoc := by sorry
-  one := D₃id
-  one_mul := by sorry
-  mul_one := by sorry
-  inv := D₃inv
-  mul_left_inv := by sorry
+  mul := mul
+  mul_assoc := by exact D₃assoc
+  one := one
+  one_mul := by exact D₃one_mul
+  mul_one := by exact D₃mul_one
+  inv := inv
+  mul_left_inv := by exact D₃mul_left_inv
 
 /- instance : Fintype MyD₃ where
   elems := {r 0, r 1, r 2, sr 0, sr 1, sr 2}
@@ -103,6 +144,8 @@ lemma identity_action (x : n7 n) : (transform_action n) (r 0) x = x := by exact 
 
 lemma assoc_action (g₁ g₂ : MyD₃)(x : n7 n) :
 (transform_action n) (g₁ * g₂) x = (transform_action n g₁) (transform_action n g₂ x) := by
+cases' g₁ with a b
+cases' g₂ with c d
 sorry
 
 instance : MulAction MyD₃ (n7 n) where
@@ -119,6 +162,18 @@ simp_all
 
 lemma r1_fixed : MulAction.fixedBy (n7 n) (r 1) =
 {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}:= by
-simp [MulAction.fixedBy]
-simp [trans_action_def]
-sorry
+have form_imp_fix (x : n7 n) :
+x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3} → x ∈ MulAction.fixedBy (n7 n) (r 1) := by
+  intro hx
+  refine MulAction.mem_fixedBy.mpr ?_
+  sorry
+have nform_imp_nfix (x : n7 n) :
+ ¬ (x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}) → ¬(x ∈ MulAction.fixedBy (n7 n) (r 1)) := by
+  sorry
+
+have form_iff_fix (x : n7 n) :
+x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3} ↔ x ∈ MulAction.fixedBy (n7 n) (r 1) := by
+  constructor
+  exact form_imp_fix x
+  contrapose
+  exact nform_imp_nfix x
