@@ -168,6 +168,15 @@ constructor
 
 lemma r1_fixed : MulAction.fixedBy (n7 n) (r 1) =
 {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}:= by
+ext x
+constructor
+intro h1
+obtain ⟨a, b, c, d ⟩  : a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3 := by sorry
+simp [ MulAction.mem_fixedBy.mpr ] at h1
+simp [transform_action n] at h1
+
+
+
 have form_imp_fix (x : n7 n) :
 x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3} → x ∈ MulAction.fixedBy (n7 n) (r 1) := by
   intro hx

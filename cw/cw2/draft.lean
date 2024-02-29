@@ -129,6 +129,8 @@ apply surjective_φ
 
 variable (N : Subgroup G)[Subgroup.Normal N](x : X)
 variable (α β : Type)[Fintype α][Fintype β]
+variable[Fintype G][Fintype X][MulAction G X][Fintype (G ⧸ stabilizer G x)][∀ x : X, Fintype <| stabilizer G x][∀ x : X, Fintype (orbit G x)][∀ g : G , Fintype <| fixedBy G g]
+
 theorem quotient_order [Fintype G][Fintype N][Fintype (G ⧸ N)]: Fintype.card G / Fintype.card N = Fintype.card (G ⧸ N) := by
 sorry
 
@@ -150,8 +152,7 @@ exact (set_fintype_card_eq_univ_iff (Set.range f)).mpr h_f_imag_eq_β
 variable (X)
 local notation "Φ" => Quotient <| orbitRel G X
 
-lemma fin_f [Fintype G]: Fintype (Set.range (f G x)) := by sorry
-
+lemma fin_f [Fintype G]: Fintype (Set.range (f G x)) := by exact Fintype.ofFinite (Set.range (f G x))
 
 lemma orbit_eq_card (x : X)[Fintype G][Fintype X][MulAction G X][Fintype (G ⧸ stabilizer G x)][∀ x : X, Fintype <| stabilizer G x][Fintype (orbit G x)]:
 Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card ↑(orbit G x) := by
@@ -177,15 +178,27 @@ open BigOperators
 --   sorry
 --   sorry
 
-variable(S : Type)
 
-lemma boo [Fintype G][Fintype X][∀ x : X, Fintype <| stabilizer G x][∀ g : G , Fintype <| fixedBy G g]:
+lemma boo [∀ g : G , Fintype <| fixedBy G g]:
 ∑ g : G,Fintype.card (fixedBy G g) = ∑ x : X, Fintype.card (stabilizer G x) := by sorry
 
-lemma boo2 [Fintype G][Fintype X][∀ x : X, Fintype <| stabilizer G x] : (Fintype.card X / Fintype.card G) = ∑ x : X, 1 / Fintype.card (stabilizer G x)  := by sorry
 
 
-theorem burnside [Fintype G][Fintype X][∀ g : G , Fintype <| fixedBy G g][∀ x : X, Fintype <| stabilizer G x]:
-(Fintype.card X / Fintype.card G) = (1 / Fintype.card G )* (∑ g : G, Fintype.card (fixedBy G g)) := by
+lemma boo2  [∀x : X, Fintype (orbit G x)] :(Fintype.card X / Fintype.card G) = ∑ x : X, 1 / (Fintype.card (orbit G x)) := by sorry
+
+lemma boo3 [∀ x : X, Fintype <| stabilizer G x]
+: ∑ x : X, 1 / Fintype.card (orbit G x) = ∑ x : X, 1 / (Fintype.card (G) / Fintype.card (stabilizer G x)):= by sorry
+
+lemma bro  : 1 / (Fintype.card (X)/Fintype.card (G)) = Fintype.card (G) / Fintype.card (X) := by sorry
+
+def c : ℚ := Fintype.card X
+def d : ℚ := Fintype.card G
+def e := (Fintype.card (stabilizer G x) : ℚ)
+def h :=  (Fintype.card (fixedBy G g) : ℚ)
+
+
+theorem burnside [∀ g : G , Fintype <| fixedBy G g]: ( Fintype.card X / Fintype.card G ) = (1 / Fintype.card G ) * (∑ g : G, Fintype.card (fixedBy G g)) := by
  rw [boo2]
+ rw [boo3]
+ simp [bro]
  sorry
