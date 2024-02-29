@@ -1,26 +1,26 @@
 import Mathlib.Tactic
 
 inductive MyD₃
-  | r : Fin 3 → MyD₃
-  | sr: Fin 3 → MyD₃
-deriving instance DecidableEq
+  | r : ZMod 3 → MyD₃
+  | sr: ZMod 3 → MyD₃
+deriving DecidableEq, Fintype
 
-for MyD₃
 namespace MyD₃
 
+
 def D₃GroupLaw : MyD₃ → MyD₃ → MyD₃
-  | r i, r j => r ((i + j) % 3)
-  | r i, sr j => sr ((j - i) % 3)
-  | sr i, r j => sr ((i + j) % 3)
-  | sr i, sr j => r ((j - i) % 3)
+  | r i, r j => r (i + j)
+  | r i, sr j => sr (j - i)
+  | sr i, r j => sr (i + j)
+  | sr i, sr j => r (j - i)
 
 def D₃id : MyD₃ := r 0
 
 def D₃inv : MyD₃ → MyD₃
-  | r i => r ((3-i) % 3)
+  | r i => r (-i)
   | sr i => sr i
 
-instance : Group (MyD₃) where
+instance : Group MyD₃ where
   mul := D₃GroupLaw
   mul_assoc := by sorry
   one := D₃id
@@ -28,6 +28,28 @@ instance : Group (MyD₃) where
   mul_one := by sorry
   inv := D₃inv
   mul_left_inv := by sorry
+
+/- instance : Fintype MyD₃ where
+  elems := {r 0, r 1, r 2, sr 0, sr 1, sr 2}
+  complete := by
+    intro x
+    cases' x with a1 a2
+    fin_cases a1
+    simp
+    simp
+    simp
+    right
+    right
+    rfl
+    fin_cases a2
+    simp
+    simp
+    aesop -/
+
+/-Fintype.ofEquiv-/
+
+
+lemma MyD₃_card : Fintype.card MyD₃ = 6 := by rfl
 
 /- Prove any theorems about the definitions of multiplication, idetities and inverses and so on here.
 such as
