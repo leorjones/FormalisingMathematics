@@ -168,7 +168,7 @@ lemma r1_fix_demonstration (a1 b1 c1 : n_set n) : ((a1, a1, a1, b1, b1, b1, c1) 
 simp [MulAction.fixedBy]
 constructor
 
-
+/- The set of ordered lists with form (a, a, a, b, b, b, c) is the fix(r 1)-/
 lemma r1_fixed : MulAction.fixedBy (n7 n) (r 1) =
 {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}:= by
 have form_imp_fix (x : n7 n) :
@@ -187,10 +187,12 @@ x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 �
   exact nform_imp_nfix x
 sorry
 
-/-Issue due to n7 n being a type not a set-/
+/- The cardinality of fix(r 1) is n³ -/
 lemma r1_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (r 1)) = n^3 := by
 rw [r1_fixed]
 sorry
+
+/- Repeated process of obtaining the cardinalities of fix(g) for all g in MyD₃ for application of Burnside's Lemma -/
 
 -- lemma r2_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (r 2)) = n^3 := by
 -- sorry
@@ -204,9 +206,13 @@ sorry
 -- lemma sr2_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (sr 0)) = n^5 := by
 -- sorry
 
+/- The finite sum of the cardinalities of fix(g) as g varies across MyD₃ is n⁷ + 3n⁵ + 2*n^3 -/
 lemma action_fix_sum  : ∑ g : MyD₃,  Fintype.card (MulAction.fixedBy (n7 n) g) = n^7 + 3*n^5 + 2*n^3 := by
 sorry
 
+/- The cardinality of the set of orbits of MyD₃ acting on (n7 n) is proven via the Burnside Lemma to be
+(n⁷ + 3n⁵ + 2*n^3)/6. In the context of the colouring puzzle, this corresponds to the number of unique colourings
+of the triangle's 7 sections when there are n colours available. -/
 theorem colouring_card [Fintype Ψ] : Fintype.card (Ψ) = (1/6)*(n^7 + 3*n^5 + 2*n^3) := by
 rw [burnside_lemma]
 rw [action_fix_sum]
