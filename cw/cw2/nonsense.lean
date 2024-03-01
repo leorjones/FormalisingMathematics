@@ -11,3 +11,4 @@ def stabilizer (x : X) : Set G := { g | g • x = x }
 def orbit_size (x : X) : ℕ := Fintype.card (orbit x)
 
 yoo
+yooo
