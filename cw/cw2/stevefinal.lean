@@ -1,8 +1,3 @@
-inductive MyD₃
-  | r : ZMod 3 → MyD₃
-  | sr: ZMod 3 → MyD₃
-deriving DecidableEq, Fintype
-
 namespace MyD₃
 
 def mul : MyD₃ → MyD₃ → MyD₃
@@ -197,7 +192,7 @@ lemma action_fix_sum  : ∑ g : MyD₃,  Fintype.card (MulAction.fixedBy (n7 n) 
 sorry
 
 theorem colouring_card [Fintype Ψ] : Fintype.card (Ψ) = (1/6)*(n^7 + 3*n^5 + 2*n^3) := by
-rw [burnside]
+rw [burnside_lemma]
 rw [action_fix_sum]
 /- have h: Fintype.card (MyD₃) = 6 := rfl -/
 rw [MyD₃_card]
