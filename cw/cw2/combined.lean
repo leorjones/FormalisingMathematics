@@ -127,7 +127,7 @@ lemma cant_use_ℕ  (w v : ℕ) : (w *  v / v = w) := by sorry
 
 
 /--Proof that | G ⧸ N | = | G | / | N | . Follows from Lagrange's Theorem-/
-theorem quotient_order [Fintype G] [Fintype N] [Fintype (G ⧸ N)][DecidablePred fun a => a ∈ N]: Fintype.card G / Fintype.card N = Fintype.card (G ⧸ N) := by
+lemma quotient_order [Fintype G] [Fintype N] [Fintype (G ⧸ N)][DecidablePred fun a => a ∈ N]: Fintype.card G / Fintype.card N = Fintype.card (G ⧸ N) := by
   simp [Subgroup.card_eq_card_quotient_mul_card_subgroup N]
   simp [cant_use_ℕ]
   -- I have no idea why rfl does not work here :(
@@ -157,7 +157,8 @@ noncomputable def fin_φ [Fintype G] : Fintype (Set.range (φ G x)) := by exact 
 theorem orbit_eq_card : Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card (orbit G x) := by
   have h1 : Function.Bijective (φ G x) := by apply orbit_stab_bij
   have h2 : DecidablePred fun a => (a ∈ stabilizer G x) :=  by exact g
-  have h3: Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card (G ⧸ stabilizer G x) := by apply quotient_order (stabilizer G x)
+  have h3: Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card (G ⧸ stabilizer G x) := by
+    apply quotient_order (stabilizer G x)
   rw [h3]
   let _ : Fintype (Set.range (φ G x)) := fin_φ _ _
   apply bijection_imp_eq_card (G ⧸ stabilizer G x) (orbit G x) (φ G x) h1
@@ -187,7 +188,7 @@ lemma cant_div_ℕ  (w v: ℕ ) : 1 / (w / v) = v / w := by sorry
 
 
 /--Burnside's Lemma : a corollary of the Orbit Stabliser Theorem-/
-theorem burnside_lemma [Fintype Φ] : (Fintype.card Φ) =  (∑ g : G, Fintype.card (fixedBy X g)) / Fintype.card G := by
+theorem burnside_lemma [Fintype Φ] : (Fintype.card Φ) = (∑ g : G, Fintype.card (fixedBy X g)) / Fintype.card G := by
  rw [sum_orbits, orbit_stab]
  simp [fix_stab_equiv, cant_div_ℕ]
 
