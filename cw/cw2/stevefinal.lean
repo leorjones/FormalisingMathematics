@@ -1,3 +1,5 @@
+import Mathlib.Tactic
+
 namespace MyD₃
 
 def mul : MyD₃ → MyD₃ → MyD₃
@@ -11,7 +13,6 @@ def one : MyD₃ := r 0
 def inv : MyD₃ → MyD₃
   | r i => r (-i)
   | sr i => sr i
-
 
 lemma D₃assoc (a b c : MyD₃) : mul (mul a  b)  c =  mul a  (mul b  c) := by
 cases' a with a1 a2

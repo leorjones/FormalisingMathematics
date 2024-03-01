@@ -1,3 +1,5 @@
+import Mathlib.Tactic
+
 inductive MyD₃
   | r : ZMod 3 → MyD₃
   | sr: ZMod 3 → MyD₃
