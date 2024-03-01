@@ -10,7 +10,11 @@ variable {a b : G}
 
 open MulAction
 
-/- ### Orbit Stabiliser Theorem-/
+/- ### Orbit Stabiliser Theorem ###-/
+
+
+/- # Defining our maps -/
+
 
 /--The map from the quotient group of the stabilizer to the set X, for an element x-/
 -- aka φ, before the restriction to its image
@@ -35,6 +39,10 @@ def φ : G ⧸ stabilizer G x → (orbit G x) := fun g => ⟨ψ G x g, ψ_orbit 
 lemma φ_mk' (g : G) : φ G x (QuotientGroup.mk g) = ⟨g • x, mem_orbit x g⟩ := rfl
 
 set_option pp.proofs.withType false --so I can read
+
+
+/- # Proving bijectivity -/
+
 
 --lemma following directly from the real life proof, a(x) = b(x) => a⁻¹b ∈ Stab(x)
 lemma eq_imp_stab :(φ G x a = φ G x b) → (a⁻¹*b ∈ stabilizer G x):= by
@@ -98,8 +106,11 @@ noncomputable def orbit_stab_equiv : (G ⧸ stabilizer G x ≃ orbit G x) :=  by
   apply surjective_φ
 
 
+/- # Cardinality equivalence -/
+
 /--| X ⧸ G | : The set of orbits of X -/
 local notation "Φ" => Quotient <| orbitRel G X
+
 
 /- # Note #
 From now on we are working with finite G and X, in order to use proofs about the cardinalities
@@ -126,21 +137,21 @@ sorry
 
 --a proof that if we have a bijection then the cardinalities of the (finite) domain and range are equal
 lemma bijection_imp_eq_card (f : α → β) (hf : Function.Bijective f) [Fintype (Set.range f)]: Fintype.card α = Fintype.card β := by
-  have hf_copy : Function.Bijective f := by exact hf
   rw [Function.Bijective] at hf
   cases' hf with hInj hSur
   have h_f_imag_eq_β : Set.range f = Set.univ := by
     rw [Set.eq_univ_iff_forall]
     intro B
     exact hSur B
-  have h_f_imag_card : Fintype.card (Set.range f) = Fintype.card α := by exact Set.card_range_of_injective sorry
+  have h_f_imag_card : Fintype.card (Set.range f) = Fintype.card α := Set.card_range_of_injective sorry
   rw [← h_f_imag_card]
   exact (set_fintype_card_eq_univ_iff (Set.range f)).mpr h_f_imag_eq_β
 
 
-
+/-- Finite version of φ, our orbit stabiliser bijection-/
 --casting our function φ so that Fintype likes it
-lemma fin_φ [Fintype G] : Fintype (Set.range (φ G x)) := by exact Fintype.ofFinite (Set.range (φ G x))
+--I don't know why this has to be a def, but the linting said so
+noncomputable def fin_φ [Fintype G] : Fintype (Set.range (φ G x)) := by exact Fintype.ofFinite (Set.range (φ G x))
 
 
 
@@ -157,7 +168,7 @@ theorem orbit_eq_card : Fintype.card (G) / Fintype.card (stabilizer G x) = Finty
 
 open BigOperators -- to use ∑
 
-/-# Burnsides Lemma -/
+/-### Burnsides Lemma ###-/
 
 
 --these are some lemmas which rearrange the orbit stabiliser theorem into Burnsides Lemma
@@ -176,7 +187,10 @@ lemma orbit_stab [∀ x : X, Fintype <| stabilizer G x]
 --again, a lemma because I am dividing natural numbers, I should avoid using it or cast the cardinalities as reals/rationals
 lemma cant_div_ℕ  (d f : ℕ ) : 1 / (d / f) = f / d := by sorry
 
+
 /--Burnside's Lemma : a corollary of the Orbit Stabliser Theorem-/
 theorem burnside_lemma [Fintype Φ] : (Fintype.card Φ) =  (∑ g : G, Fintype.card (fixedBy X g)) / Fintype.card G := by
  rw [sum_orbits, orbit_stab]
  simp [fix_stab_equiv, cant_div_ℕ]
+
+#lint
