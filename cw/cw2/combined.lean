@@ -141,9 +141,10 @@ lemma bijection_imp_eq_card (f : α → β) (hf : Function.Bijective f) [Fintype
     rw [Set.eq_univ_iff_forall]
     intro B
     exact hSur B
-  have h_f_imag_card : Fintype.card (Set.range f) = Fintype.card α := Set.card_range_of_injective sorry
+  have h_f_imag_card : Fintype.card (Set.range f) = Fintype.card α := Set.card_range_of_injective hInj
   rw [← h_f_imag_card]
   exact (set_fintype_card_eq_univ_iff (Set.range f)).mpr h_f_imag_eq_β
+
 
 
 /-- Finite version of φ, our orbit stabiliser bijection-/
