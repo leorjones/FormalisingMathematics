@@ -112,10 +112,16 @@ variable[Fintype G] [Fintype X] [MulAction G X] [Fintype Φ]
 variable[Fintype (G ⧸ stabilizer G x)] [∀ x : X, Fintype <| stabilizer G x] [∀ x : X, Fintype (orbit G x)] [∀ g : G, Fintype <| fixedBy X g]
 variable {G} (g)
 
+--a lemma because lean doesn't like when you divide with natural numbers
+--ideally, I would rewrite this proof without the use of / altogether
+lemma cant_use_ℕ  (c d : ℕ) : (d *  c / c = d) := by sorry
+
 
 /--Proof that | G ⧸ N | = | G | / | N | . Follows from Lagrange's Theorem-/
-theorem quotient_order [Fintype G] [Fintype N] [Fintype (G ⧸ N)] : Fintype.card G / Fintype.card N = Fintype.card (G ⧸ N) := by
----rw [Subgroup.card_eq_card_quotient_mul_card_subgroup N]
+theorem quotient_order [Fintype G] [Fintype N] [Fintype (G ⧸ N)][DecidablePred fun a => a ∈ N]: Fintype.card G / Fintype.card N = Fintype.card (G ⧸ N) := by
+simp [Subgroup.card_eq_card_quotient_mul_card_subgroup N]
+simp [cant_use_ℕ]
+-- I have no idea why rfl does not work here :(
 sorry
 
 --a proof that if we have a bijection then the cardinalities of the (finite) domain and range are equal
@@ -136,11 +142,14 @@ lemma bijection_imp_eq_card (f : α → β) (hf : Function.Bijective f) [Fintype
 --casting our function φ so that Fintype likes it
 lemma fin_φ [Fintype G] : Fintype (Set.range (φ G x)) := by exact Fintype.ofFinite (Set.range (φ G x))
 
+
+
 /--Orbit Stabiliser Theorem : a proof that | G | ⧸ | Stab(x) | = | G(x) | -/
 theorem orbit_eq_card : Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card (orbit G x) := by
   have h1 : Function.Bijective (φ G x) := by apply orbit_stab_bij
-  have h2: Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card (G ⧸ stabilizer G x) := by apply quotient_order
-  rw [h2]
+  have h2 : DecidablePred fun a => (a ∈ stabilizer G x) :=  by exact g
+  have h3: Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card (G ⧸ stabilizer G x) := by apply quotient_order (stabilizer G x)
+  rw [h3]
   let _ : Fintype (Set.range (φ G x)) := fin_φ _ _
   apply bijection_imp_eq_card (G ⧸ stabilizer G x) (orbit G x) (φ G x) h1
 
@@ -149,23 +158,22 @@ theorem orbit_eq_card : Fintype.card (G) / Fintype.card (stabilizer G x) = Finty
 open BigOperators -- to use ∑
 
 /-# Burnsides Lemma -/
--- def bjburnside : (Σg : G, fixedBy G g) ≃ (Prod Φ G) := by
---   apply Equiv.ofBijective
---   simp [Function.Bijective]
---   sorry
---   sorry
 
 
+--these are some lemmas which rearrange the orbit stabiliser theorem into Burnsides Lemma
+--rearranging equations with natural numbers is very difficult
 lemma fix_stab_equiv : ∑ g : G, Fintype.card (fixedBy X g) = ∑ x : X, Fintype.card (stabilizer G x) := by sorry
 
 
 lemma sum_orbits [Fintype Φ] :(Fintype.card Φ) = ∑ x : X, 1 / (Fintype.card (orbit G x)) := by sorry
 
 
+--this one follows pretty directly from the orbit stabiliser theorem
 lemma orbit_stab [∀ x : X, Fintype <| stabilizer G x]
 : ∑ x : X, 1 / Fintype.card (orbit G x) =  1 / (Fintype.card (G) /(∑ x : X ,Fintype.card (stabilizer G x))):= by sorry
 
 
+--again, a lemma because I am dividing natural numbers, I should avoid using it or cast the cardinalities as reals/rationals
 lemma cant_div_ℕ  (d f : ℕ ) : 1 / (d / f) = f / d := by sorry
 
 /--Burnside's Lemma : a corollary of the Orbit Stabliser Theorem-/
