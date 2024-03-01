@@ -123,15 +123,15 @@ variable {G} (g)
 
 --a lemma because lean doesn't like when you divide with natural numbers
 --ideally, I would rewrite this proof without the use of / altogether
-lemma cant_use_ℕ  (c d : ℕ) : (d *  c / c = d) := by sorry
+lemma cant_use_ℕ  (w v : ℕ) : (w *  v / v = w) := by sorry
 
 
 /--Proof that | G ⧸ N | = | G | / | N | . Follows from Lagrange's Theorem-/
 theorem quotient_order [Fintype G] [Fintype N] [Fintype (G ⧸ N)][DecidablePred fun a => a ∈ N]: Fintype.card G / Fintype.card N = Fintype.card (G ⧸ N) := by
-simp [Subgroup.card_eq_card_quotient_mul_card_subgroup N]
-simp [cant_use_ℕ]
--- I have no idea why rfl does not work here :(
-sorry
+  simp [Subgroup.card_eq_card_quotient_mul_card_subgroup N]
+  simp [cant_use_ℕ]
+  -- I have no idea why rfl does not work here :(
+  sorry
 
 --a proof that if we have a bijection then the cardinalities of the (finite) domain and range are equal
 lemma bijection_imp_eq_card (f : α → β) (hf : Function.Bijective f) [Fintype (Set.range f)]: Fintype.card α = Fintype.card β := by
@@ -183,7 +183,7 @@ lemma orbit_stab [∀ x : X, Fintype <| stabilizer G x]
 
 
 --again, a lemma because I am dividing natural numbers, I should avoid using it or cast the cardinalities as reals/rationals
-lemma cant_div_ℕ  (d f : ℕ ) : 1 / (d / f) = f / d := by sorry
+lemma cant_div_ℕ  (w v: ℕ ) : 1 / (w / v) = v / w := by sorry
 
 
 /--Burnside's Lemma : a corollary of the Orbit Stabliser Theorem-/
@@ -191,13 +191,15 @@ theorem burnside_lemma [Fintype Φ] : (Fintype.card Φ) =  (∑ g : G, Fintype.c
  rw [sum_orbits, orbit_stab]
  simp [fix_stab_equiv, cant_div_ℕ]
 
+
+
 /- Introduces inductive type MyD₃ and its constructors. It is to become the Dihedral Group of the 3-gon (Triangle)
 with the r i corresponding to rotations by 0, 120 and 240 degrees and the sr i corresponding to its
 3 reflective symmetries -/
 inductive MyD₃
   | r : ZMod 3 → MyD₃
   | sr: ZMod 3 → MyD₃
-deriving DecidableEq, Fintype
+deriving Fintype
 
 namespace MyD₃
 
@@ -219,47 +221,47 @@ def inv : MyD₃ → MyD₃
 
 /- Proof that the multiplication defined is associative -/
 lemma D₃_assoc (a b c : MyD₃) : mul (mul a  b)  c =  mul a  (mul b  c) := by
-cases' a with a1 a2
-· cases' b with b1 b2
-  · cases' c with c1 c2
-    · simp [mul]
-      ring
-    · simp [mul]
-      ring
-  · cases' c with c1 c2
-    · simp [mul]
-      ring
-    · simp [mul]
-      ring
-· cases' b with b1 b2
-  · cases' c with c1 c2
-    · simp [mul]
-      ring
-    · simp [mul]
-      ring
-  · cases' c with c1 c2
-    · simp [mul]
-      ring
-    · simp [mul]
-      ring
+  cases' a with a1 a2
+  · cases' b with b1 b2
+    · cases' c with c1 c2
+      · simp [mul]
+        ring
+      · simp [mul]
+        ring
+    · cases' c with c1 c2
+      · simp [mul]
+        ring
+      · simp [mul]
+        ring
+  · cases' b with b1 b2
+    · cases' c with c1 c2
+      · simp [mul]
+        ring
+      · simp [mul]
+        ring
+    · cases' c with c1 c2
+      · simp [mul]
+        ring
+      · simp [mul]
+        ring
 
 /- Left multiplication by the identity leaves any element unchanged -/
 lemma D₃_one_mul (g : MyD₃): mul one g = g := by
-cases' g with g1 g2
-· simp [one, mul]
-· simp [one, mul]
+  cases' g with g1 g2
+  · simp [one, mul]
+  · simp [one, mul]
 
 /- Right multiplication by the identity leaves any element unchanged -/
 lemma D₃_mul_one (g : MyD₃): mul g one  = g := by
-cases' g with g1 g2
-· simp [one, mul]
-· simp [one, mul]
+  cases' g with g1 g2
+  · simp [one, mul]
+  · simp [one, mul]
 
 /- Multiplication by the inverse returns the identity function -/
 lemma D₃_mul_left_inv (g : MyD₃) : mul (inv g) g = one := by
-cases' g with g1 g2
-· simp [inv, mul, one]
-· simp [inv, mul, one]
+  cases' g with g1 g2
+  · simp [inv, mul, one]
+  · simp [inv, mul, one]
 
 /- Verification that MyD₃ and the multiplication defined satisfy the criteria to be a group-/
 instance : Group MyD₃ where
@@ -322,8 +324,8 @@ lemma identity_action (x : n7 n) : (transform_action n) (r 0) x = x := by exact 
 
 /- Associativity of the group action. Left sorried as would be repetitive proof considering cases, as seen previously -/
 lemma assoc_action (g₁ g₂ : MyD₃)(x : n7 n) :
-(transform_action n) (g₁ * g₂) x = (transform_action n g₁) (transform_action n g₂ x) := by
-sorry
+  (transform_action n) (g₁ * g₂) x = (transform_action n g₁) (transform_action n g₂ x) := by
+  sorry
 
 /- Verification that transform_action satisfies the criteria to be a valid group action of MyD₃ on (n7 n) -/
 instance : MulAction MyD₃ (n7 n) where
@@ -344,44 +346,44 @@ variable [Fintype Ψ][Fintype (n7 n)]
 
 /- The set of points of (n7 n) fixed under group action by r 0 is the entirety of (n7 n) -/
 lemma r0_fixed : MulAction.fixedBy (n7 n) (r 0) = Set.univ := by
-simp [MulAction.fixedBy]
-have r0_id (y : n7 n) : r 0 • y = y := by rfl
-simp_all
+  simp [MulAction.fixedBy]
+  have r0_id (y : n7 n) : r 0 • y = y := by rfl
+  simp_all
 
 /-The cardinality of set fix(r 0) is n⁷. An issue arises due to (n7 n) being a type not a set so cardinality is not defined -/
 lemma r0_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (r 0)) = n^7 := by
-rw [r0_fixed]
-rw [Set.univ]
-sorry
+  rw [r0_fixed]
+  rw [Set.univ]
+  sorry
 
 /- Demonstration that an ordered list in (n7 n) with form (a, a, a, b, b, b, c) is fixed under group action by r 1-/
 lemma r1_fix_demonstration (a1 b1 c1 : n_set n) : ((a1, a1, a1, b1, b1, b1, c1) : n7 n) ∈ MulAction.fixedBy (n7 n) (r 1) := by
-simp [MulAction.fixedBy]
-constructor
+  simp [MulAction.fixedBy]
+  constructor
 
 /- The set of ordered lists with form (a, a, a, b, b, b, c) is the fix(r 1)-/
 lemma r1_fixed : MulAction.fixedBy (n7 n) (r 1) =
 {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}:= by
-have form_imp_fix (x : n7 n) :
-x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3} → x ∈ MulAction.fixedBy (n7 n) (r 1) := by
-  intro hx
-  refine MulAction.mem_fixedBy.mpr ?_
+  have form_imp_fix (x : n7 n) :
+  x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3} → x ∈ MulAction.fixedBy (n7 n) (r 1) := by
+    intro hx
+    refine MulAction.mem_fixedBy.mpr ?_
+    sorry
+  have nform_imp_nfix (x : n7 n) :
+  ¬ (x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}) → ¬(x ∈ MulAction.fixedBy (n7 n) (r 1)) := by
+    sorry
+  have form_iff_fix (x : n7 n) :
+  x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3} ↔ x ∈ MulAction.fixedBy (n7 n) (r 1) := by
+    constructor
+    exact form_imp_fix x
+    contrapose
+    exact nform_imp_nfix x
   sorry
-have nform_imp_nfix (x : n7 n) :
- ¬ (x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}) → ¬(x ∈ MulAction.fixedBy (n7 n) (r 1)) := by
-  sorry
-have form_iff_fix (x : n7 n) :
-x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3} ↔ x ∈ MulAction.fixedBy (n7 n) (r 1) := by
-  constructor
-  exact form_imp_fix x
-  contrapose
-  exact nform_imp_nfix x
-sorry
 
 /- The cardinality of fix(r 1) is n³ -/
 lemma r1_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (r 1)) = n^3 := by
-rw [r1_fixed]
-sorry
+  rw [r1_fixed]
+  sorry
 
 /- Repeated process of obtaining the cardinalities of fix(g) for all g in MyD₃ for application of Burnside's Lemma -/
 
@@ -399,12 +401,12 @@ sorry
 
 /- The finite sum of the cardinalities of fix(g) as g varies across MyD₃ is n⁷ + 3n⁵ + 2*n^3 -/
 lemma action_fix_sum  : ∑ g : MyD₃,  Fintype.card (MulAction.fixedBy (n7 n) g) = n^7 + 3*n^5 + 2*n^3 := by
-sorry
+  sorry
 
 /- The cardinality of the set of orbits of MyD₃ acting on (n7 n) is proven via the Burnside Lemma to be
 (n⁷ + 3n⁵ + 2*n^3)/6. In the context of the colouring puzzle, this corresponds to the number of unique colourings
 of the triangle's 7 sections when there are n colours available. -/
-theorem colouring_card [Fintype Ψ] : Fintype.card (Ψ) = (1/6)*(n^7 + 3*n^5 + 2*n^3) := by
-rw [burnside_lemma]
-rw [action_fix_sum]
-rw [My_D₃_card]
+theorem colouring_card [Fintype Ψ] : Fintype.card (Ψ) = (n^7 + 3*n^5 + 2*n^3)/6:= by
+  rw [burnside_lemma]
+  rw [action_fix_sum]
+  rw [My_D₃_card]
