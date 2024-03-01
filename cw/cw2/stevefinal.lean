@@ -29,28 +29,28 @@ def inv : MyD₃ → MyD₃
 /- Proof that the multiplication defined is associative -/
 lemma D₃_assoc (a b c : MyD₃) : mul (mul a  b)  c =  mul a  (mul b  c) := by
 cases' a with a1 a2
-cases' b with b1 b2
-cases' c with c1 c2
-simp [mul]
-ring
-simp [mul]
-ring
-cases' c with c1 c2
-simp [mul]
-ring
-simp [mul]
-ring
-cases' b with b1 b2
-cases' c with c1 c2
-simp [mul]
-ring
-simp [mul]
-ring
-cases' c with c1 c2
-simp [mul]
-ring
-simp [mul]
-ring
+· cases' b with b1 b2
+  · cases' c with c1 c2
+    · simp [mul]
+      ring
+    · simp [mul]
+      ring
+  · cases' c with c1 c2
+    · simp [mul]
+      ring
+    · simp [mul]
+      ring
+· cases' b with b1 b2
+  · cases' c with c1 c2
+    · simp [mul]
+      ring
+    · simp [mul]
+      ring
+  · cases' c with c1 c2
+    · simp [mul]
+      ring
+    · simp [mul]
+      ring
 
 /- Left multiplication by the identity leaves any element unchanged -/
 lemma D₃_one_mul (g : MyD₃): mul one g = g := by
