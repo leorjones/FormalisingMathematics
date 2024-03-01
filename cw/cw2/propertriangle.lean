@@ -1,4 +1,5 @@
 import Mathlib.Tactic
+open BigOperators
 
 inductive MyD₃
   | r : ZMod 3 → MyD₃
@@ -91,21 +92,6 @@ instance : Group MyD₃ where
 
 lemma MyD₃_card : Fintype.card MyD₃ = 6 := by rfl
 
-/- Prove any theorems about the definitions of multiplication, idetities and inverses and so on here.
-such as
-theorem r_mul_r (i j : ZMod n) : r i * r j = r (i + j) := rfl
- Also results about cardinality perhaps
-
- theorem card [NeZero n] : Fintype.card (DihedralGroup n) = 2 * n := by
-  rw [← Fintype.card_eq.mpr ⟨fintypeHelper⟩, Fintype.card_sum, ZMod.card, two_mul]
-#align dihedral_group.card DihedralGroup.card
-
-theorem nat_card : Nat.card (DihedralGroup n) = 2 * n := by
-  cases n
-  · rw [Nat.card_eq_zero_of_infinite]
-  · rw [Nat.card_eq_fintype_card, card]
-   -/
-
 end MyD₃
 
 variable (n : ℕ)
@@ -160,6 +146,27 @@ simp [MulAction.fixedBy]
 have r0_id (y : n7 n) : r 0 • y = y := by rfl
 simp_all
 
+
+/-Issue due to n7 n being a type not a set-/
+lemma r0_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (r 0)) = n^7 := by
+rw [r0_fixed]
+rw [Set.univ]
+sorry
+
+
+lemma r1_fix_demonstration (a1 b1 c1 : n_set n) : ((a1, a1, a1, b1, b1, b1, c1) : n7 n) ∈ MulAction.fixedBy (n7 n) (r 1) := by
+simp [MulAction.fixedBy]
+constructor
+
+lemma r1_fixed : MulAction.fixedBy (n7 n) (r 1) =
+{(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}:= by
+ext x
+constructor
+swap
+intro hx
+simp [MulAction.fixedBy] at hx
+sorry
+
 lemma r1_fixed : MulAction.fixedBy (n7 n) (r 1) =
 {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}:= by
 have form_imp_fix (x : n7 n) :
@@ -170,10 +177,30 @@ x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 �
 have nform_imp_nfix (x : n7 n) :
  ¬ (x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3}) → ¬(x ∈ MulAction.fixedBy (n7 n) (r 1)) := by
   sorry
-
 have form_iff_fix (x : n7 n) :
 x ∈ {(a1, a2, a3, b1, b2, b3, c1) : (n7 n) | a1 = a2 ∧ a1 = a3 ∧ b1 = b2 ∧ b1 = b3} ↔ x ∈ MulAction.fixedBy (n7 n) (r 1) := by
   constructor
   exact form_imp_fix x
   contrapose
   exact nform_imp_nfix x
+sorry
+
+/-Issue due to n7 n being a type not a set-/
+lemma r1_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (r 1)) = n^3 := by
+rw [r1_fixed]
+sorry
+
+lemma r2_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (r 2)) = n^3 := by
+sorry
+
+lemma sr0_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (sr 0)) = n^5 := by
+sorry
+
+lemma sr1_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (sr 1)) = n^5 := by
+sorry
+
+lemma sr2_fixed_card : Nat.card (MulAction.fixedBy (n7 n) (sr 0)) = n^5 := by
+sorry
+
+lemma action_fix_sum : ∑ g : MyD₃,  Nat.card (MulAction.fixedBy (n7 n) g) = n^7 + 3*n^5 + 2*n^3 := by
+sorry
