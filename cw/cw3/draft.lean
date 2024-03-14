@@ -37,7 +37,16 @@ nₚ(G) ≡ 1 % p -/
 
 local notation "Φ" => Quotient <| orbitRel G (Sylow p G)
 
-lemma orbit_div_G  :   := by sorry
+lemma orbit_div_G [Fintype G] [∀ x : X, Fintype (orbit G x)] : Fintype.card (orbit G x) ∣ Fintype.card G  := by sorry
+
+
+-- lemma orbit_one : :=
+--   have P : Sylow p G := by sorry
+--   have h : fixedPoints P (Sylow p G) = {P} := by sorry
+--   have _ : Fintype (fixedPoints P (Sylow p G)) := by
+--     rw[h]
+--     infer_instance
+--   have h2 : Fintype.card (fixedPoints P (Sylow p G)) = 1 := by simp [h]
 
 theorem SylowII [Fintype (Sylow p G)]: Fintype.card (Sylow p G) ≡ 1 [MOD p] := by
   have P : Sylow p G := by sorry
@@ -47,7 +56,6 @@ theorem SylowII [Fintype (Sylow p G)]: Fintype.card (Sylow p G) ≡ 1 [MOD p] :=
     infer_instance
   have h2 : Fintype.card (fixedPoints P (Sylow p G)) = 1 := by simp [h]
   have h3 (Q : Sylow p G)[Fintype (fixedPoints Q (Sylow p G))]: Fintype.card (fixedPoints Q (Sylow p G)) = 1 → P = Q := by sorry
-  have h4 (R : orbit (Sylow p G) p):
   sorry
 
 /- # Sylow III
@@ -55,8 +63,15 @@ Every p-group is contained in a Sylow p-group
 |Q| = p, Q ≤ G → ∃ P ∈ Sylₚ(G) s.t Q ≤ P
 -/
 
+variable [Fintype (Sylow p G)][MulAction H (Sylow p G)][∀ q : Sylow p G, Fintype (orbit H q)]
 theorem SylowIII (h : IsPGroup p H) : ∃ Q : Sylow p G, H ≤ Q := by
-  sorry
+  have h1 : ∃ q : Sylow p G, Fintype.card (orbit H q) = 1 := by sorry -- Sylow II
+  cases' h1 with q h1
+  have h2 : H ≤ q.normalizer := by sorry
+  use q
+  apply normaliser
+  exact h
+  exact h2
 
 /- # Sylow IV
 Sylₚ(G) is a single conjugacy class
