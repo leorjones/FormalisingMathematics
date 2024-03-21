@@ -3,7 +3,7 @@ import Mathlib
 /-# Sylow Theorems yay-/
 
 /- # Preliminaries -/
-variable (p : ℕ) (G H : Type*) [Group G] {H : Subgroup G} {pCond : Fact p.Prime}
+variable (p : ℕ) (G H : Type*) [Group G] {H J: Subgroup G} {pCond : Fact p.Prime}
 variable {p} {G}
 
 open BigOperators MulAction
@@ -17,9 +17,19 @@ instance : SubgroupClass (Sylow p G) G where
 lemma conj_class [Fintype G] [Fintype <| ConjClasses G] [∀ x : ConjClasses G, Fintype x.carrier] :
 Fintype.card G = ∑ x : ConjClasses G, x.carrier.toFinset.card := by sorry
 
+def φ (H J : Subgroup G) : (H × J) → G := fun g => g.1 * g.2
 
 
-lemma normaliser (P : Sylow p G) (Q : Subgroup G) (h : IsPGroup p Q) : Q ≤ P.normalizer → Q ≤ P := by sorry
+lemma normaliser (P : Sylow p G) (Q : Subgroup G) (h : IsPGroup p Q): Q ≤ P.normalizer → Q ≤ P := by
+  --have (φ P Q).image : Subgroup G := by
+  let PQ : Subgroup G := {
+    carrier := Set.range (φ P Q)
+    mul_mem' := sorry
+    one_mem' := sorry
+    inv_mem' := sorry
+  }
+    ---constructor
+  sorry
 
 variable [MulAction G X] (x : X)
 theorem orbit_stabiliser [Fintype G] [∀ x : X, Fintype <| stabilizer G x] [∀ x : X, Fintype (orbit G x)]:
@@ -54,17 +64,31 @@ lemma orbit_div_G [Fintype G] [∀ x : X, Fintype (orbit G x)] (y : X): Fintype.
 open Fintype
 
 lemma number_theory (a p n : ℕ ) (h: a ∣ p ^ n) (h2 : a ≠ 1) (h3 : Fact p.Prime) : (p ∣ a) := by
-  simp[Nat.instDvdNat]
+  --simp[Nat.instDvdNat]
   cases' n with n
   simp at h
   by_contra
   apply h2
   exact h
-  simp[Nat.pow_succ'] at h
+  rw [Nat.dvd_prime_pow] at h
+  rcases h with ⟨k, ⟨_, hk'⟩⟩
+  rw [hk']
+  rw [Nat.dvd_prime_pow]
+  use 1
+  have : k ≠ 0 := by
+    intro hk1
+    rw [hk1] at hk'
+    simp at hk'
+    apply h2
+    exact hk'
+  constructor
+  exact Nat.one_le_iff_ne_zero.mpr this
+  simp
+  simp [fact_iff] at h3
+  exact h3
+  simp [fact_iff] at h3
+  exact h3
 
-  simp[Nat.instDvdNat] at h
-
-  sorry -- ASK
 
 
 theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](y : Sylow p G)[∀ x : Sylow p G, Fintype (orbit P x)]: Fintype.card (Sylow p G) ≡ 1 [MOD p] := by
@@ -121,13 +145,16 @@ theorem SylowIII (h : IsPGroup p H)[∀ q : Sylow p G, Fintype (orbit H q)]: ∃
     --- have h : H := ⟨h, h5⟩
     rw [← normal]
     rw [orbit] at h3
+    have h : H := by sorry
     have hm : h • P ∈ orbit H P := by sorry --- ⟨h, rfl⟩
+
     -- ASK
 
     sorry
   use P
   apply normaliser
   exact h
+
   exact hn
 
 /- # Sylow IV
@@ -146,12 +173,17 @@ theorem SylowIV [Finite (Sylow p G)] : IsPretransitive G (Sylow p G) := by
   have h2 : ∃ R : Ω, card (orbit Q R) = 1 := by sorry
   cases' h2 with R
   have h3 : orbit Q R = {R} := by sorry ---same as Sylow III
-  have R : Subgroup G := by sorry
-  have h4 : Q ≤ R.normalizer := by sorry --- same as Sylow III
-  --- apply normaliser at h4
-
-
-  sorry
+  --have : R : Sylow p G := by sorry
+  have h4 : Q ≤ (R : Sylow p G).normalizer := by sorry --- same as Sylow III
+  apply normaliser at h4
+  have h5 : (R : Sylow p G).toSubgroup = Q := Q.3 (R : Sylow p G).2 h4
+  simp [Ω] at R
+  rcases R with ⟨R, ⟨g, hg⟩⟩
+  use g
+  rw [hg]
+  simp only at h5
+  exact Sylow.ext h5
+  exact Q.2
 
 -- theorem SylowIV [Finite (Sylow p G)](P : Sylow p G) : Sylow p G = {g • P | g : G} := by
 --   sorry
