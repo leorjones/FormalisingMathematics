@@ -6,7 +6,7 @@ import Mathlib
 variable (p : ℕ) (G H : Type*) [Group G] {H J: Subgroup G} {pCond : Fact p.Prime}
 variable {p} {G}
 
-open BigOperators MulAction
+open BigOperators MulAction Fintype
 
 instance : SubgroupClass (Sylow p G) G where
   mul_mem := Subgroup.mul_mem _
@@ -19,17 +19,85 @@ Fintype.card G = ∑ x : ConjClasses G, x.carrier.toFinset.card := by sorry
 
 def φ (H J : Subgroup G) : (H × J) → G := fun g => g.1 * g.2
 
+---example [Fintype P] [Fintype Q] [Fintype (P ⊓ Q).toSubgroup] (P Q : Subgroup G): Finset.inf (P ⊓ Q) id := by sorry
 
-lemma normaliser (P : Sylow p G) (Q : Subgroup G) (h : IsPGroup p Q): Q ≤ P.normalizer → Q ≤ P := by
+lemma normaliser (P : Sylow p G) (Q : Subgroup G) (h : IsPGroup p Q)/-[Fintype P][Fintype Q]-/:
+Q ≤ P.normalizer → Q ≤ P := by
   --have (φ P Q).image : Subgroup G := by
+  intro norm
   let PQ : Subgroup G := {
-    carrier := Set.range (φ P Q)
-    mul_mem' := sorry
-    one_mem' := sorry
-    inv_mem' := sorry
+    carrier := Set.range (φ Q P)
+    mul_mem' := by
+      simp [φ]
+      intros _ _ q1 hq1 p1 hp1 a q2 hq2 p2 hp2 b
+      have h0 : q2⁻¹ ∈ P.normalizer := by
+        rw [SetLike.le_def] at norm
+        apply norm
+        simp [inv_mem]
+        exact hq2
+      have h1 : (q2⁻¹ * p1 * q2) * p2 ∈ P := by
+        apply mul_mem
+        simp only [Subgroup.normalizer] at h0
+        rw [h0] at hp1
+        simp at hp1
+        exact hp1
+        exact hp2
+      have h2 : q1 * q2 ∈ Q := by
+        apply mul_mem
+        exact hq1
+        exact hq2
+      use q1 * q2
+      constructor
+      exact h2
+      use (q2⁻¹ * p1 * q2) * p2
+      constructor
+      exact h1
+      rw [←a, ←b]
+      simp [mul_assoc]
+    one_mem' := by
+      use 1
+      simp [φ]
+    inv_mem' := by
+      simp [φ]
+      intros a q hq p hp ha
+      use q⁻¹
+      constructor
+      apply inv_mem
+      exact hq
+      use q * p⁻¹ * q⁻¹
+      constructor
+      have : q ∈ P.normalizer := by
+        rw [SetLike.le_def] at norm
+        apply norm
+        exact hq
+      simp only [Subgroup.normalizer] at this
+      apply inv_mem at hp
+      rw [this] at hp
+      exact hp
+      rw [← ha]
+      simp [mul_assoc]
   }
-    ---constructor
-  sorry
+  -- let unionPQ : Subgroup G := {
+  --   carrier := (P.toSubgroup ⊓ Q)
+  --   mul_mem':= sorry
+  --   one_mem':= sorry
+  --   inv_mem':= by sorry
+  -- }
+  -- have _ : Fintype PQ := by sorry
+  -- have _ : Fintype unionPQ := by sorry
+  -- have : card PQ = (card Q * card P) / card unionPQ := by sorry
+  -- have _ : card PQ = card P * (unionPQ.relindex Q) := by sorry
+  have h5 : IsPGroup p PQ := by sorry
+  have h6 : P ≤ PQ := by sorry
+  have : PQ = P := by
+    rcases P with ⟨a, b, c⟩
+    apply c at h5
+    apply h5 at h6
+    exact h6
+  have h7 : Q ≤ PQ := by sorry
+  rw [←this]
+  exact h7
+
 
 variable [MulAction G X] (x : X)
 theorem orbit_stabiliser [Fintype G] [∀ x : X, Fintype <| stabilizer G x] [∀ x : X, Fintype (orbit G x)]:
@@ -52,16 +120,6 @@ local notation "Φ" => Quotient <| orbitRel G (Sylow p G)
 lemma orbit_div_G [Fintype G] [∀ x : X, Fintype (orbit G x)] (y : X): Fintype.card (orbit G y) ∣ Fintype.card G  := by sorry
 
 
-
--- lemma orbit_one : :=
---   have P : Sylow p G := by sorry
---   have h : fixedPoints P (Sylow p G) = {P} := by sorry
---   have _ : Fintype (fixedPoints P (Sylow p G)) := by
---     rw[h]
---     infer_instance
---   have h2 : Fintype.card (fixedPoints P (Sylow p G)) = 1 := by simp [h]
-
-open Fintype
 
 lemma number_theory (a p n : ℕ ) (h: a ∣ p ^ n) (h2 : a ≠ 1) (h3 : Fact p.Prime) : (p ∣ a) := by
   --simp[Nat.instDvdNat]
