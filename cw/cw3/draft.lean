@@ -88,13 +88,33 @@ Q ≤ P.normalizer → Q ≤ P := by
   -- have : card PQ = (card Q * card P) / card unionPQ := by sorry
   -- have _ : card PQ = card P * (unionPQ.relindex Q) := by sorry
   have h5 : IsPGroup p PQ := by sorry
-  have h6 : P ≤ PQ := by sorry
+  have h6 : P ≤ PQ := by
+    rw [SetLike.le_def]
+    intros a ha
+    simp [φ]
+    use 1
+    constructor
+    apply one_mem
+    use a
+    constructor
+    exact ha
+    apply one_mul
   have : PQ = P := by
     rcases P with ⟨a, b, c⟩
     apply c at h5
     apply h5 at h6
     exact h6
-  have h7 : Q ≤ PQ := by sorry
+  have h7 : Q ≤ PQ := by
+    rw [SetLike.le_def]
+    intros a ha
+    simp [φ]
+    use a
+    constructor
+    exact ha
+    use 1
+    constructor
+    apply one_mem
+    apply mul_one
   rw [←this]
   exact h7
 
@@ -109,7 +129,7 @@ Existence of Sylow p-groups
 |G| = pᵃm (p ∤ m) → G has a subgroup of order pᵃ -/
 
 theorem SylowI (a m : ℕ) [Fintype G] [Fintype H] (h :¬ (p ∣ m)): Fintype.card G = p ^ a * m  → Fintype.card H = p^a:= by
-  sorry
+  sorry --- exists_subgroup_card_pow_prime
 
 /- # Sylow II
 Number of Sylow p-groups
@@ -147,11 +167,24 @@ lemma number_theory (a p n : ℕ ) (h: a ∣ p ^ n) (h2 : a ≠ 1) (h3 : Fact p.
   simp [fact_iff] at h3
   exact h3
 
-
-
-theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](y : Sylow p G)[∀ x : Sylow p G, Fintype (orbit P x)]: Fintype.card (Sylow p G) ≡ 1 [MOD p] := by
+theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](y : Sylow p G)[∀ x : Sylow p G, Fintype (orbit P x)]:
+  Fintype.card (Sylow p G) ≡ 1 [MOD p] := by
   -- have P : Sylow p G := by sorry
-  have h : fixedPoints P (Sylow p G) = {P} := by sorry
+  have h : fixedPoints P (Sylow p G) = {P} := by
+    apply Set.ext
+    intro Q
+    have h' : Q ∈ fixedPoints P (Sylow p G) ↔ P ≤ Q := by sorry
+    have : P ≤ Q ↔ Q = P := by
+      constructor
+      intro hpq
+      ---exact (P.3 Q.2 hpq) (by rw [Sylow.ext_iff])
+
+      sorry
+    rw [h', this]
+    rfl
+    ---simp [Sylow.ext_iff]
+    --exact Set.ext fun (Q : Sylow p G) => ⟨sorry, sorry⟩
+
   have _ : Fintype (fixedPoints P (Sylow p G)) := by
     rw[h]
     infer_instance
