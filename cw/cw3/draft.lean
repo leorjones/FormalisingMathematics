@@ -118,6 +118,7 @@ Q ≤ P.normalizer → Q ≤ P := by
   rw [←this]
   exact h7
 
+lemma normal {g : G} {P : Sylow p G} : g • P = P ↔ g ∈ (P : Subgroup G).normalizer := Sylow.smul_eq_iff_mem_normalizer
 
 variable [MulAction G X] (x : X)
 theorem orbit_stabiliser [Fintype G] [∀ x : X, Fintype <| stabilizer G x] [∀ x : X, Fintype (orbit G x)]:
@@ -173,13 +174,24 @@ theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](y : Sylow p G)[�
   have h : fixedPoints P (Sylow p G) = {P} := by
     apply Set.ext
     intro Q
-    have h' : Q ∈ fixedPoints P (Sylow p G) ↔ P ≤ Q := by sorry
+    have h2 : Q ∈ fixedPoints P (Sylow p G) ↔ P ≤ Q.normalizer := by
+      rw [SetLike.le_def]
+      simp [normal]
+    have h' : Q ∈ fixedPoints P (Sylow p G) ↔ P ≤ Q := by
+      rw[h2]
+      constructor
+      apply normaliser
+      exact P.2
+      have : Q ≤ Q.normalizer := Subgroup.le_normalizer
+      intros a b c
+      apply a at c
+      apply this at c
+      exact c
     have : P ≤ Q ↔ Q = P := by
       constructor
       intro hpq
-      ---exact (P.3 Q.2 hpq) (by rw [Sylow.ext_iff])
-
-      sorry
+      rw [Sylow.ext_iff, P.3 Q.2 hpq]
+      exact fun a => Eq.le (id a.symm)
     rw [h', this]
     rfl
     ---simp [Sylow.ext_iff]
@@ -214,7 +226,6 @@ Every p-group is contained in a Sylow p-group
 -/
 
 
-lemma normal {g : G} {P : Sylow p G} : g • P = P ↔ g ∈ (P : Subgroup G).normalizer := Sylow.smul_eq_iff_mem_normalizer
 variable [Fintype (Sylow p G)][MulAction H (Sylow p G)][∀ q : Sylow p G, Fintype (orbit H q)]
 
 lemma orbit_def : y ∈ orbit G x → ∃ g : G, y = g • x := by
