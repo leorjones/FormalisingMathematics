@@ -129,8 +129,7 @@ Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card (orbit G x) := b
 Existence of Sylow p-groups
 |G| = pᵃm (p ∤ m) → G has a subgroup of order pᵃ -/
 
-theorem SylowI (a m : ℕ) [Fintype G] [Fintype H] (h :¬ (p ∣ m)): Fintype.card G = p ^ a * m  → Fintype.card H = p^a:= by
-  sorry --- exists_subgroup_card_pow_prime
+theorem SylowI (a m : ℕ) [Fintype G] [Fintype H] (h :¬ (p ∣ m)): Fintype.card G = p ^ a * m  → Fintype.card H = p^a:= sorry --exists_subgroup_card_pow_prime
 
 /- # Sylow II
 Number of Sylow p-groups
@@ -188,7 +187,7 @@ lemma card_stuff (X : Set S)(x : S)[Fintype X] (h : x ∈ X) (h1: card X = 1) : 
     exact h
 
 
-theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](Q : Sylow p G)[∀ x : Sylow p G, Fintype (orbit P x)]:
+theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](Q : Sylow p G)[∀ x : Sylow p G, Fintype (orbit P x)][Fintype Quotient (orbitRel P (Sylow p G))]:
   Fintype.card (Sylow p G) ≡ 1 [MOD p] := by
   -- have P : Sylow p G := by sorry
   have h : fixedPoints P (Sylow p G) = {P} := by
@@ -223,21 +222,13 @@ theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](Q : Sylow p G)[�
 
   have h2 : card (fixedPoints P (Sylow p G)) = 1 := by simp [h]
   have h3 : card (orbit P Q) = 1 → (orbit P Q) = {P} := by
-    rw [← mem_fixedPoints_iff_card_orbit_eq_one, ← h]
     intro h9
+    have h9' := h9
+    rw [← mem_fixedPoints_iff_card_orbit_eq_one, h] at h9'
+    simp at h9'
     have : Q ∈ orbit P Q := mem_orbit_self Q
-    sorry
-    --rw [card_eq_one_iff] at h2
-
-
-    -- rw [card_eq_one_iff, ← h, fixedPoints]
-    -- intro h9
-    --rcases h2 with ⟨a, b⟩ --⟨⟨a, b⟩, c⟩
-    -- have : Q ∈ orbit P Q := mem_orbit_self Q
-    -- rw [h] at h9
-    -- simp at h9
-
-    ---apply b at this
+    nth_rw 1 [h9'] at this
+    exact card_stuff (orbit P Q) P this h9
   have h4 : card (orbit P Q) ∣  card P := by
     apply orbit_div_G
   have h5' [Fintype P] : ∃ n, card P = p ^ n := by
@@ -251,6 +242,8 @@ theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](Q : Sylow p G)[�
     exact h4
     exact q
     exact pCond
+
+  have : card (Sylow p G) = (∑y : Quotient <| orbitRel P (Sylow p G), y) := by sorry
 --- convert unique orbit order one + other orbits div by p to final form ASK
   sorry
 
@@ -262,13 +255,21 @@ Every p-group is contained in a Sylow p-group
 -/
 
 
-variable [Fintype (Sylow p G)][MulAction H (Sylow p G)][∀ q : Sylow p G, Fintype (orbit H q)]
+-- variable [Fintype (Sylow p G)][∀ q : Sylow p G, Fintype (orbit H q)]
 
-lemma orbit_def : y ∈ orbit G x → ∃ g : G, y = g • x := by
+lemma orbit_def : y ∈ orbit G x ↔ ∃ g : G, y = g • x := by
+  constructor
   simp[orbit]
   intros a h
   use a
   simp [h]
+  simp[orbit]
+  intros a b
+  use a
+  exact id b.symm
+
+lemma orbit_def' (g : G) : g • x ∈ orbit G x := by exact mem_orbit x g
+
 
 
 theorem SylowIII (h : IsPGroup p H)[∀ q : Sylow p G, Fintype (orbit H q)]: ∃ P : Sylow p G, H ≤ P := by
@@ -280,15 +281,12 @@ theorem SylowIII (h : IsPGroup p H)[∀ q : Sylow p G, Fintype (orbit H q)]: ∃
   have hn : H ≤ Subgroup.normalizer P := by
     rw[SetLike.le_def] --- die
     intros h h5
-    --- have h : H := ⟨h, h5⟩
+    ---have h : H := ⟨h, h5⟩
     rw [← normal]
-    rw [orbit] at h3
-    have h : H := by sorry
-    have hm : h • P ∈ orbit H P := by sorry --- ⟨h, rfl⟩
-
-    -- ASK
-
-    sorry
+    have hm  := mem_orbit P (⟨h, h5⟩ : H)   --- ⟨⟨h, h5⟩, by simp[orbit]; sorry⟩ mem_orbit P h
+    rw [h3] at hm
+    simp at hm
+    exact hm
   use P
   apply normaliser
   exact h
@@ -296,22 +294,39 @@ theorem SylowIII (h : IsPGroup p H)[∀ q : Sylow p G, Fintype (orbit H q)]: ∃
 
 /- # Sylow IV
 Sylₚ(G) is a single conjugacy class
+
 ∀ Q, P ∈ Sylₚ(G), ∃ g s.t Q = ᵍP -/
+-- variable (P : Sylow p G)
+-- local notation "Ω" => {g • P | g : G}
 
 theorem SylowIV [Finite (Sylow p G)] : IsPretransitive G (Sylow p G) := by
   constructor
   intros P Q
   let Ω := {g • P | g : G}
-  let x : Ω := by sorry
-  let φ : MulAction Q Ω := by sorry
+  have x := Ω --:= by sorry
+  have φ : MulAction Q Ω := by sorry
   have _ : ∀ x : Ω, Fintype (orbit Q x) := by sorry
   have _ : Fintype Ω := by sorry
+
   have h1 : card Ω ≡ 1 [MOD p] := by sorry --Sylow II
   have h2 : ∃ R : Ω, card (orbit Q R) = 1 := by sorry
-  cases' h2 with R
-  have h3 : orbit Q R = {R} := by sorry ---same as Sylow III
-  --have : R : Sylow p G := by sorry
-  have h4 : Q ≤ (R : Sylow p G).normalizer := by sorry --- same as Sylow III
+  rcases h2 with ⟨R, hR⟩
+  have h3 : orbit Q R = {R} := card_stuff (orbit Q R) R (mem_orbit_self R) hR
+  have h4 : Q ≤ (R : Sylow p G).normalizer := by
+    rw[SetLike.le_def] --- die
+    intros h h5
+    have h210 : orbit Q (R : Sylow p G) = {(R : Sylow p G)} := by
+      sorry
+    ---have h : H := ⟨h, h5⟩
+    rw [← normal]
+    --rw [h3] at h210
+    have hm  := mem_orbit (R : Sylow p G) (⟨h, h5⟩ : ↑Q)   --- ⟨⟨h, h5⟩, by simp[orbit]; sorry⟩ mem_orbit P h
+    --rw [hm] at h210
+    rw [h210] at hm
+    simp at hm
+    exact hm
+
+   --- same as Sylow III
   apply normaliser at h4
   have h5 : (R : Sylow p G).toSubgroup = Q := Q.3 (R : Sylow p G).2 h4
   simp [Ω] at R
