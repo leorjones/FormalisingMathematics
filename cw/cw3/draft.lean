@@ -14,16 +14,11 @@ instance : SubgroupClass (Sylow p G) G where
   inv_mem := Subgroup.inv_mem _
 
 
-lemma conj_class [Fintype G] [Fintype <| ConjClasses G] [∀ x : ConjClasses G, Fintype x.carrier] :
-Fintype.card G = ∑ x : ConjClasses G, x.carrier.toFinset.card := by sorry
-
 def φ (H J : Subgroup G) : (H × J) → G := fun g => g.1 * g.2
 
 ---example [Fintype P] [Fintype Q] [Fintype (P ⊓ Q).toSubgroup] (P Q : Subgroup G): Finset.inf (P ⊓ Q) id := by sorry
-
-lemma normaliser (P : Sylow p G) (Q : Subgroup G) (h : IsPGroup p Q)/-[Fintype P][Fintype Q]-/:
-Q ≤ P.normalizer → Q ≤ P := by
-  --have (φ P Q).image : Subgroup G := by
+lemma mul_mem' : ∀ {a b : G}, a ∈ Set.range (φ Q ↑P) → b ∈ Set.range (φ Q ↑P) → a * b ∈ Set.range (φ Q ↑P) := by sorry
+lemma normaliser (P : Sylow p G) (Q : Subgroup G) (h : IsPGroup p Q): Q ≤ P.normalizer → Q ≤ P := by
   intro norm
   let PQ : Subgroup G := {
     carrier := Set.range (φ Q P)
