@@ -135,7 +135,7 @@ theorem SylowI (a m : ℕ) [Fintype G] [Fintype H] (h :¬ (p ∣ m)): Fintype.ca
 Number of Sylow p-groups
 nₚ(G) ≡ 1 % p -/
 
-local notation "Φ" => Quotient <| orbitRel G (Sylow p G)
+
 
 lemma orbit_div_G [Fintype G] [∀ x : X, Fintype (orbit G x)] (y : X): Fintype.card (orbit G y) ∣ Fintype.card G  := by sorry
 
@@ -187,7 +187,9 @@ lemma card_stuff (X : Set S)(x : S)[Fintype X] (h : x ∈ X) (h1: card X = 1) : 
     exact h
 
 
-theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](Q : Sylow p G)[∀ x : Sylow p G, Fintype (orbit P x)][Fintype Quotient (orbitRel P (Sylow p G))]:
+--def something {ψ : Ω → (Sylow p G)} (hφ : Function.LeftInverse Quotient.mk'' ψ) : (Sylow p G) ≃ Σω : Ω, G ⧸ stabilizer G (ψ ω) := sorry
+
+theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](Q : Sylow p G)[∀ x : Sylow p G, Fintype (orbit P x)][Fintype (Quotient <| orbitRel P (Sylow p G))]:
   Fintype.card (Sylow p G) ≡ 1 [MOD p] := by
   -- have P : Sylow p G := by sorry
   have h : fixedPoints P (Sylow p G) = {P} := by
@@ -242,11 +244,11 @@ theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](Q : Sylow p G)[�
     exact h4
     exact q
     exact pCond
+  have ψ : Quotient (orbitRel P (Sylow p G)) → Sylow p G := by sorry -- fun y => element of orbit
+  have : card (Sylow p G) = ∑ y : Quotient (orbitRel P (Sylow p G)), card (orbit P (ψ y)) := by sorry --orbit stab
 
-  have : card (Sylow p G) = (∑y : Quotient <| orbitRel P (Sylow p G), y) := by sorry
---- convert unique orbit order one + other orbits div by p to final form ASK
+--- convert unique orbit order one + other orbits div by p to final form
   sorry
-
 
 
 /- # Sylow III
@@ -299,24 +301,46 @@ Sylₚ(G) is a single conjugacy class
 -- variable (P : Sylow p G)
 -- local notation "Ω" => {g • P | g : G}
 
+lemma hom (G : Type*) [Group G] (S T : Type*) [MulAction G S] [MulAction G T]
+   (φ : MulActionHom G S T) (s : S) : φ '' (orbit G s) = orbit G (φ s) := by
+ ext x
+ constructor
+ · rintro ⟨-, ⟨g, rfl⟩, rfl⟩
+   simp
+ · rintro ⟨g, rfl⟩
+   use g • s
+   simp
+
 theorem SylowIV [Finite (Sylow p G)] : IsPretransitive G (Sylow p G) := by
   constructor
   intros P Q
   let Ω := {g • P | g : G}
-  have x := Ω --:= by sorry
-  have φ : MulAction Q Ω := by sorry
+  let φ : MulAction Q Ω := {
+    smul := fun q y => ⟨q • y, sorry⟩
+    one_smul := by
+      simp only [ConjAct.smul_def]
+      sorry
+    mul_smul := by
+      sorry
+  }
   have _ : ∀ x : Ω, Fintype (orbit Q x) := by sorry
   have _ : Fintype Ω := by sorry
-
   have h1 : card Ω ≡ 1 [MOD p] := by sorry --Sylow II
   have h2 : ∃ R : Ω, card (orbit Q R) = 1 := by sorry
   rcases h2 with ⟨R, hR⟩
   have h3 : orbit Q R = {R} := card_stuff (orbit Q R) R (mem_orbit_self R) hR
+  let f : MulActionHom Q Ω (Sylow p G) := {
+    toFun := fun x => x
+    map_smul' := by intros ; rfl
+  }
   have h4 : Q ≤ (R : Sylow p G).normalizer := by
     rw[SetLike.le_def] --- die
     intros h h5
     have h210 : orbit Q (R : Sylow p G) = {(R : Sylow p G)} := by
-      sorry
+      change orbit Q (f R) = {f R}
+      rw [← hom]
+      simp [f]
+      aesop
     ---have h : H := ⟨h, h5⟩
     rw [← normal]
     --rw [h3] at h210
