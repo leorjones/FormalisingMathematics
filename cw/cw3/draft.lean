@@ -168,7 +168,27 @@ lemma number_theory (a p n : ℕ ) (h: a ∣ p ^ n) (h2 : a ≠ 1) (h3 : Fact p.
   simp [fact_iff] at h3
   exact h3
 
-theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](y : Sylow p G)[∀ x : Sylow p G, Fintype (orbit P x)]:
+
+lemma card_stuff (X : Set S)(x : S)[Fintype X] (h : x ∈ X) (h1: card X = 1) : X = {x} := by
+  ext a
+  constructor
+  · intro h2
+    simp
+    rw [card_eq_one_iff] at h1
+    rcases h1 with ⟨⟨b, hb⟩ , hbp⟩
+    have := hbp ⟨a, h2⟩
+    simp at this
+    rw[this]
+    have := hbp ⟨x, h⟩
+    simp at this
+    rw [this]
+  · intro h2
+    simp at h2
+    rw [h2]
+    exact h
+
+
+theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](Q : Sylow p G)[∀ x : Sylow p G, Fintype (orbit P x)]:
   Fintype.card (Sylow p G) ≡ 1 [MOD p] := by
   -- have P : Sylow p G := by sorry
   have h : fixedPoints P (Sylow p G) = {P} := by
@@ -200,18 +220,34 @@ theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](y : Sylow p G)[�
   have _ : Fintype (fixedPoints P (Sylow p G)) := by
     rw[h]
     infer_instance
+
   have h2 : card (fixedPoints P (Sylow p G)) = 1 := by simp [h]
-  have h3 : card (orbit P y) = 1 → (orbit P y) = {P} := by sorry
-  have h4 : card (orbit P y) ∣  card P := by
+  have h3 : card (orbit P Q) = 1 → (orbit P Q) = {P} := by
+    rw [← mem_fixedPoints_iff_card_orbit_eq_one, ← h]
+    intro h9
+    have : Q ∈ orbit P Q := mem_orbit_self Q
+    sorry
+    --rw [card_eq_one_iff] at h2
+
+
+    -- rw [card_eq_one_iff, ← h, fixedPoints]
+    -- intro h9
+    --rcases h2 with ⟨a, b⟩ --⟨⟨a, b⟩, c⟩
+    -- have : Q ∈ orbit P Q := mem_orbit_self Q
+    -- rw [h] at h9
+    -- simp at h9
+
+    ---apply b at this
+  have h4 : card (orbit P Q) ∣  card P := by
     apply orbit_div_G
   have h5' [Fintype P] : ∃ n, card P = p ^ n := by
     obtain ⟨a, heq : card P = _⟩ := IsPGroup.iff_card.mp P.isPGroup'
     use a
   cases' h5' with n h5''
   rw[h5''] at h4
-  have h6 : card (orbit P y) ≠ 1 → p ∣ card (orbit P y) := by
+  have h6 : card (orbit P Q) ≠ 1 → p ∣ card (orbit P Q) := by
     intro q
-    apply number_theory (card (orbit P y)) p n
+    apply number_theory (card (orbit P Q)) p n
     exact h4
     exact q
     exact pCond
@@ -236,11 +272,11 @@ lemma orbit_def : y ∈ orbit G x → ∃ g : G, y = g • x := by
 
 
 theorem SylowIII (h : IsPGroup p H)[∀ q : Sylow p G, Fintype (orbit H q)]: ∃ P : Sylow p G, H ≤ P := by
-  have h1 : ∃ P : Sylow p G, Fintype.card (orbit H P) = 1 := by sorry -- Sylow II
+  have h1 : ∃ P : Sylow p G, card (orbit H P) = 1 := by sorry -- Sylow II
   cases' h1 with P h1
   have h2 : P ∈ orbit H P := by apply mem_orbit_self
-  rw [card_eq_one_iff] at h1
-  have h3 : orbit H P = {P} := by sorry --- ASK
+  --rw [card_eq_one_iff] at h1
+  have h3 : orbit H P = {P} := card_stuff (orbit H P) P h2 h1
   have hn : H ≤ Subgroup.normalizer P := by
     rw[SetLike.le_def] --- die
     intros h h5
@@ -256,7 +292,6 @@ theorem SylowIII (h : IsPGroup p H)[∀ q : Sylow p G, Fintype (orbit H q)]: ∃
   use P
   apply normaliser
   exact h
-
   exact hn
 
 /- # Sylow IV
