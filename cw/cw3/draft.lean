@@ -1,65 +1,64 @@
 import Mathlib
 
-/-# Sylow Theorems yay-/
-
-/- # Preliminaries -/
 variable (p : ℕ) (G H : Type*) [Group G] {H J: Subgroup G} {pCond : Fact p.Prime}
 variable {p} {G}
 
 open BigOperators MulAction Fintype
 
+/-# The Sylow Theorems
+Formalising Mathematics CW3 -/
 
+/- # Preliminaries
+I start by proving the Proposition 2.1 and Lemma 2.2 as in Liebeck's proof.
+To prove PQ is a subgroup I first define a map from (P × Q) → PQ and then proof the subgroup axioms
+The cardinality parts of Prop 2.1 and therefore Lemma 2.2 are missing.
+We only need that PQ is a p-subgroup (which follows) and then we are done. -/
+
+/-- φ : (P × Q) → PQ -/
 def φ (H J : Subgroup G) : (H × J) → G := fun g => g.1 * g.2
 
----example [Fintype P] [Fintype Q] [Fintype (P ⊓ Q).toSubgroup] (P Q : Subgroup G): Finset.inf (P ⊓ Q) id := by sorry
 lemma PQmul (P : Sylow p G) (Q : Subgroup G) (norm: Q ≤ P.normalizer): ∀ {a b : G}, a ∈ Set.range (φ Q ↑P) → b ∈ Set.range (φ Q ↑P) → a * b ∈ Set.range (φ Q ↑P) := by
   simp [φ]
   intros _ _ q1 hq1 p1 hp1 a q2 hq2 p2 hp2 b
   have h0 : q2⁻¹ ∈ P.normalizer := by
     rw [SetLike.le_def] at norm
-    apply norm
-    simp [inv_mem]
-    exact hq2
+    exact Subgroup.inv_mem (Subgroup.normalizer P) (norm hq2)
   have h1 : (q2⁻¹ * p1 * q2) * p2 ∈ P := by
     apply mul_mem
-    simp only [Subgroup.normalizer] at h0
-    rw [h0] at hp1
-    simp at hp1
-    exact hp1
-    exact hp2
-  have h2 : q1 * q2 ∈ Q := by
-    apply mul_mem
-    exact hq1
-    exact hq2
+    · rw [h0] at hp1
+      simp at hp1
+      exact hp1
+    · exact hp2
   use q1 * q2
   constructor
-  exact h2
-  use (q2⁻¹ * p1 * q2) * p2
-  constructor
-  exact h1
-  rw [←a, ←b]
-  simp [mul_assoc]
+  · exact Subgroup.mul_mem Q hq1 hq2
+  · use (q2⁻¹ * p1 * q2) * p2
+    constructor
+    · exact h1
+    · simp_rw [←a, ←b, mul_assoc]
+      simp only [mul_inv_cancel_left]
 
 lemma PQinv (P : Sylow p G) (Q : Subgroup G) (norm: Q ≤ P.normalizer): ∀ {x : G}, ∀ x_1 ∈ Q, ∀ x_2 ∈ P.1, x_1 * x_2 = x → ∃ a ∈ Q, ∃ a_1 ∈ P.1, a * a_1 = x⁻¹ := by
   intros a q hq p hp ha
   use q⁻¹
   constructor
-  apply inv_mem
-  exact hq
-  use q * p⁻¹ * q⁻¹
-  constructor
-  have : q ∈ P.normalizer := by
-    rw [SetLike.le_def] at norm
-    apply norm
-    exact hq
-  simp only [Subgroup.normalizer] at this
-  apply inv_mem at hp
-  rw [this] at hp
-  exact hp
-  rw [← ha]
-  simp [mul_assoc]
+  · exact inv_mem hq
+  · use q * p⁻¹ * q⁻¹
+    constructor
+    · have : q ∈ P.normalizer := by
+        rw [SetLike.le_def] at norm
+        exact norm hq
+      --simp only [Subgroup.normalizer] at this
+      /- I've left some of the unecessary simps in as comments, in case it helps when marking-/
+      apply inv_mem at hp
+      rw [this] at hp
+      exact hp
+    · simp_rw [← ha, mul_assoc]
+      simp only [inv_mul_cancel_left, mul_inv_rev]
 
-lemma normaliser (P : Sylow p G) (Q : Subgroup G) (h : IsPGroup p Q): Q ≤ P.normalizer → Q ≤ P := by
+/--Q ≤ N(P) → Q ≤ P, where P ∈ Sylₚ(G) and Q is a p-subgroup
+A combination of Proposition 2.1 and Lemma 2.2-/
+lemma norm_imp_sub (P : Sylow p G) (Q : Subgroup G) (h : IsPGroup p Q): Q ≤ P.normalizer → Q ≤ P := by
   intro norm
   let PQ : Subgroup G := {
     carrier := Set.range (φ Q P)
@@ -67,8 +66,7 @@ lemma normaliser (P : Sylow p G) (Q : Subgroup G) (h : IsPGroup p Q): Q ≤ P.no
     one_mem' := ⟨1, by simp [φ]⟩
     inv_mem' := by
       simp [φ]
-      exact PQinv P Q norm
-  }
+      exact PQinv P Q norm}
   -- let unionPQ : Subgroup G := {
   --   carrier := (P.toSubgroup ⊓ Q)
   --   mul_mem':= sorry
@@ -86,36 +84,29 @@ lemma normaliser (P : Sylow p G) (Q : Subgroup G) (h : IsPGroup p Q): Q ≤ P.no
     simp [φ]
     use 1
     constructor
-    apply one_mem
-    use a
-    constructor
-    exact ha
-    apply one_mul
+    · apply one_mem
+    · use a
+      constructor
+      · exact ha
+      · apply one_mul
   have : PQ = P := by
     rcases P with ⟨a, b, c⟩
-    apply c at h5
-    apply h5 at h6
-    exact h6
+    exact c h5 h6
   have h7 : Q ≤ PQ := by
     rw [SetLike.le_def]
     intros a ha
     simp [φ]
     use a
     constructor
-    exact ha
-    use 1
-    constructor
-    apply one_mem
-    apply mul_one
+    · exact ha
+    · use 1
+      constructor
+      · apply one_mem
+      · apply mul_one
   rw [←this]
   exact h7
 
-lemma normal {g : G} {P : Sylow p G} : g • P = P ↔ g ∈ (P : Subgroup G).normalizer := Sylow.smul_eq_iff_mem_normalizer
-
-variable [MulAction G X] (x : X)
-theorem orbit_stabiliser [Fintype G] [∀ x : X, Fintype <| stabilizer G x] [∀ x : X, Fintype (orbit G x)]:
-Fintype.card (G) / Fintype.card (stabilizer G x) = Fintype.card (orbit G x) := by sorry
-
+lemma norm_def {g : G} {P : Sylow p G} : g ∈ (P : Subgroup G).normalizer ↔ g • P = P  := Sylow.smul_eq_iff_mem_normalizer.symm
 
 /- # Sylow I
 Existence of Sylow p-groups
@@ -127,117 +118,101 @@ theorem SylowI (a m : ℕ) [Fintype G] [Fintype H] (h :¬ (p ∣ m)): Fintype.ca
 Number of Sylow p-groups
 nₚ(G) ≡ 1 % p -/
 
-
-
-lemma orbit_div_G [Fintype G] (y : X) [Fintype <| orbit G y] [Fintype <| stabilizer G y] : Fintype.card (orbit G y) ∣ Fintype.card G  := by
+/-- A corollary of the Orbit-Stabiliser Theorem
+∣ orbit G x ∣ | ∣ G ∣ -/
+lemma orbit_div_G [Fintype G] (y : X)[MulAction G X] [Fintype <| orbit G y] [Fintype <| stabilizer G y] : Fintype.card (orbit G y) ∣ Fintype.card G  := by
   simp [Nat.instDvdNat]
   have orb_stab := card_orbit_mul_card_stabilizer_eq_card_group G y --Orbit-stabliser theorem
   exact ⟨card ↥(stabilizer G y), orb_stab.symm⟩
 
 
-lemma number_theory (a p n : ℕ ) (h: a ∣ p ^ n) (h2 : a ≠ 1) (h3 : Fact p.Prime) : (p ∣ a) := by
-  --simp[Nat.instDvdNat]
-  cases' n with n
-  simp at h
-  by_contra
-  apply h2
-  exact h
-  rw [Nat.dvd_prime_pow] at h
-  rcases h with ⟨k, ⟨_, hk'⟩⟩
-  rw [hk']
-  rw [Nat.dvd_prime_pow]
-  use 1
-  have : k ≠ 0 := by
-    intro hk1
-    rw [hk1] at hk'
-    simp at hk'
-    apply h2
-    exact hk'
-  constructor
-  exact Nat.one_le_iff_ne_zero.mpr this
-  simp
+lemma number_theory (a p n : ℕ ) (h1: a ∣ p ^ n) (h2 : a ≠ 1) (h3 : Fact p.Prime) : (p ∣ a) := by
   simp [fact_iff] at h3
-  exact h3
-  simp [fact_iff] at h3
-  exact h3
+  rcases n
+  · simp only [Nat.zero_eq, pow_zero, Nat.dvd_one] at h1
+    by_contra
+    exact h2 h1
+  · rw [Nat.dvd_prime_pow] at h1
+    rcases h1 with ⟨k, ⟨_, hk'⟩⟩
+    · rw [hk', Nat.dvd_prime_pow]
+      · use 1
+        have : k ≠ 0 := by
+          intro hk1
+          rw [hk1] at hk'
+          exact h2 hk'
+        constructor
+        · exact Nat.one_le_iff_ne_zero.mpr this
+        · simp only [pow_one]
+      · exact h3
+    · exact h3
+
 
 
 lemma card_stuff (X : Set S)(x : S)[Fintype X] (h : x ∈ X) (h1: card X = 1) : X = {x} := by
   ext a
   constructor
   · intro h2
-    simp
+    simp only [Set.mem_singleton_iff]
     rw [card_eq_one_iff] at h1
     rcases h1 with ⟨⟨b, hb⟩ , hbp⟩
     have := hbp ⟨a, h2⟩
-    simp at this
-    rw[this]
+    simp only [Subtype.mk.injEq] at this
+    rw [this]
     have := hbp ⟨x, h⟩
-    simp at this
+    simp only [Subtype.mk.injEq] at this
     rw [this]
   · intro h2
-    simp at h2
+    --simp only [Set.mem_singleton_iff] at h2
     rw [h2]
     exact h
 
-
---def something {ψ : Ω → (Sylow p G)} (hφ : Function.LeftInverse Quotient.mk'' ψ) : (Sylow p G) ≃ Σω : Ω, G ⧸ stabilizer G (ψ ω) := sorry
-
+/-- Sylow's Second Theorem : nₚ(G) ≡ 1 % p -/
 theorem SylowII [Fintype (Sylow p G)](P : Sylow p G)[Fintype P](Q : Sylow p G)[∀ x : Sylow p G, Fintype (orbit P x)][Fintype <| stabilizer P Q][Fintype (Quotient <| orbitRel P (Sylow p G))]:
   Fintype.card (Sylow p G) ≡ 1 [MOD p] := by
-  -- have P : Sylow p G := by sorry
-  have h : fixedPoints P (Sylow p G) = {P} := by
+  have h1 : fixedPoints P (Sylow p G) = {P} := by
     apply Set.ext
     intro Q
-    have h2 : Q ∈ fixedPoints P (Sylow p G) ↔ P ≤ Q.normalizer := by
+    have h11 : Q ∈ fixedPoints P (Sylow p G) ↔ P ≤ Q.normalizer := by
       rw [SetLike.le_def]
-      simp [normal]
-    have h' : Q ∈ fixedPoints P (Sylow p G) ↔ P ≤ Q := by
-      rw[h2]
+      simp only [mem_fixedPoints, Subtype.forall, Submonoid.mk_smul, norm_def]
+    have h12 : Q ∈ fixedPoints P (Sylow p G) ↔ P ≤ Q := by
+      rw[h11]
       constructor
-      apply normaliser
-      exact P.2
-      have : Q ≤ Q.normalizer := Subgroup.le_normalizer
-      intros a b c
-      apply a at c
-      apply this at c
-      exact c
-    have : P ≤ Q ↔ Q = P := by
+      · apply norm_imp_sub
+        exact P.2
+      · have : Q ≤ Q.normalizer := Subgroup.le_normalizer
+        intros a _ c
+        exact this (a c)
+    have h13: P ≤ Q ↔ Q = P := by
       constructor
-      intro hpq
-      rw [Sylow.ext_iff, P.3 Q.2 hpq]
-      exact fun a => Eq.le (id a.symm)
-    rw [h', this]
-    rfl
-    ---simp [Sylow.ext_iff]
-    --exact Set.ext fun (Q : Sylow p G) => ⟨sorry, sorry⟩
-
+      · intro hpq
+        rw [Sylow.ext_iff, P.3 Q.2 hpq]
+      · exact fun a => Eq.le (id a.symm)
+    rw [h12, h13]
+    simp only [Set.mem_singleton_iff]
   have _ : Fintype (fixedPoints P (Sylow p G)) := by
-    rw[h]
+    rw [h1]
     infer_instance
 
-  have h2 : card (fixedPoints P (Sylow p G)) = 1 := by simp [h]
+  have h2 : card (fixedPoints P (Sylow p G)) = 1 := by simp only [h1, card_ofSubsingleton]
   have h3 : card (orbit P Q) = 1 → (orbit P Q) = {P} := by
-    intro h9
-    have h9' := h9
-    rw [← mem_fixedPoints_iff_card_orbit_eq_one, h] at h9'
-    simp at h9'
+    intro h31
+    have h32 := h31
+    rw [← mem_fixedPoints_iff_card_orbit_eq_one, h1] at h32
+    --simp only [Set.mem_singleton_iff] at h32
     have : Q ∈ orbit P Q := mem_orbit_self Q
-    nth_rw 1 [h9'] at this
-    exact card_stuff (orbit P Q) P this h9
-  have h4 : card (orbit P Q) ∣  card P := by
-    apply orbit_div_G
-  have h5' [Fintype P] : ∃ n, card P = p ^ n := by
+    nth_rw 1 [h32] at this
+    exact card_stuff (orbit P Q) P this h31
+  have h4 : card (orbit P Q) ∣  card P := orbit_div_G Q
+  have h5 [Fintype P] : ∃ n, card P = p ^ n := by
     obtain ⟨a, heq : card P = _⟩ := IsPGroup.iff_card.mp P.isPGroup'
     use a
-  cases' h5' with n h5''
-  rw[h5''] at h4
+  rcases h5 with ⟨n, h5'⟩
+  rw[h5'] at h4
   have h6 : card (orbit P Q) ≠ 1 → p ∣ card (orbit P Q) := by
-    intro q
-    apply number_theory (card (orbit P Q)) p n
-    exact h4
-    exact q
-    exact pCond
+    intro nh2
+    exact number_theory (card ↑(orbit P Q)) p n h4 nh2 pCond
+
   have ψ : Quotient (orbitRel P (Sylow p G)) → Sylow p G := by sorry -- fun y => element of orbit
   have : card (Sylow p G) = ∑ y : Quotient (orbitRel P (Sylow p G)), card (orbit P (ψ y)) := by sorry --orbit stab
 
@@ -251,42 +226,34 @@ Every p-group is contained in a Sylow p-group
 -/
 
 
--- variable [Fintype (Sylow p G)][∀ q : Sylow p G, Fintype (orbit H q)]
 
-lemma orbit_def : y ∈ orbit G x ↔ ∃ g : G, y = g • x := by
+lemma orbit_def [MulAction G X](x : X): y ∈ orbit G x ↔ ∃ g : G, y = g • x := by
+  simp [orbit]
   constructor
-  simp[orbit]
-  intros a h
-  use a
-  simp [h]
-  simp[orbit]
-  intros a b
-  use a
-  exact id b.symm
+  · simp only [forall_exists_index]
+    intros a h
+    use a
+    simp only [h]
+  · simp only [forall_exists_index]
+    intros a b
+    use a
+    exact id b.symm
 
-lemma orbit_def' (g : G) : g • x ∈ orbit G x := by exact mem_orbit x g
-
-
-
+/-- Sylow's Third Theorem : Every p-group is contained in a Sylow p-group-/
 theorem SylowIII (h : IsPGroup p H)[∀ q : Sylow p G, Fintype (orbit H q)]: ∃ P : Sylow p G, H ≤ P := by
   have h1 : ∃ P : Sylow p G, card (orbit H P) = 1 := by sorry -- Sylow II
-  cases' h1 with P h1
-  have h2 : P ∈ orbit H P := by apply mem_orbit_self
-  --rw [card_eq_one_iff] at h1
+  rcases h1 with ⟨P, h1⟩
+  have h2 : P ∈ orbit H P := mem_orbit_self P
   have h3 : orbit H P = {P} := card_stuff (orbit H P) P h2 h1
-  have hn : H ≤ Subgroup.normalizer P := by
-    rw[SetLike.le_def] --- die
+  have h4 : H ≤ Subgroup.normalizer P := by
+    rw[SetLike.le_def]
     intros h h5
-    ---have h : H := ⟨h, h5⟩
-    rw [← normal]
-    have hm  := mem_orbit P (⟨h, h5⟩ : H)   --- ⟨⟨h, h5⟩, by simp[orbit]; sorry⟩ mem_orbit P h
-    rw [h3] at hm
-    simp at hm
-    exact hm
+    rw [norm_def]
+    have h41  := mem_orbit P (⟨h, h5⟩ : H)
+    rw [h3, Submonoid.mk_smul, Set.mem_singleton_iff] at h41
+    exact h41
   use P
-  apply normaliser
-  exact h
-  exact hn
+  exact norm_imp_sub P H h h4
 
 /- # Sylow IV
 Sylₚ(G) is a single conjugacy class
@@ -305,26 +272,20 @@ lemma hom (G : Type*) [Group G] (S T : Type*) [MulAction G S] [MulAction G T]
    use g • s
    simp
 
-example [Finite X](X : Set S) (Y := {a | a ∈ X}) : Set.Finite Y := by sorry
-
---example(a g c : G) : ∃ g,  g • P = c • P := by exact exists_apply_eq_apply (fun a_1 => a_1 * a) c
-
+/-- Sylow's Fourth Theorem : Sylₚ(G) is a single conjugacy class-/
 theorem SylowIV [Finite G] [Finite (Sylow p G)] : IsPretransitive G (Sylow p G) := by
   constructor
   intros P Q
-
   let Ω := {g • P | g : G}
-  let φ : MulAction Q Ω := {
+  let _ : MulAction Q Ω := {
     smul := fun q y => ⟨q • y, by
-      simp only [Ω] at *
       rcases y with ⟨a, b, rfl⟩
       use q * b
-      --simp only
       exact mul_smul (q : G) b P⟩
-    one_smul := by
+    one_smul :=  by
       intro b
-      simp only [Ω] at *
-      rcases b with ⟨a, c, rfl⟩
+      --simp only [Ω] at *
+      rcases b with ⟨a, b, rfl⟩
       --congr!
       sorry
       --apply exists_apply_eq_apply (fun a_1 => a_1 • P) c
@@ -332,15 +293,15 @@ theorem SylowIV [Finite G] [Finite (Sylow p G)] : IsPretransitive G (Sylow p G) 
 
     mul_smul := by
       intros x y b
-      simp only [Ω] at *
-
+      --simp only [Ω] at *
+      rcases b with ⟨a, b, rfl⟩
       sorry
   }
-  let _ := Fintype.ofFinite G
-  let _ := Fintype.ofFinite (Sylow p G)
+  -- let _ := Fintype.ofFinite G
+  -- let _ := Fintype.ofFinite (Sylow p G)
+  --let _ := Finite Ω --:= by sorry
+  let _ := Fintype.ofFinite Ω
   have _ : ∀ x : Ω, Fintype (orbit Q x) := by sorry
-  have _ : Finset Ω := by sorry
-  let I := Fintype.ofFinite Ω
   have h1 : card Ω ≡ 1 [MOD p] := by sorry --Sylow II
   have h2 : ∃ R : Ω, card (orbit Q R) = 1 := by sorry
   rcases h2 with ⟨R, hR⟩
@@ -350,32 +311,22 @@ theorem SylowIV [Finite G] [Finite (Sylow p G)] : IsPretransitive G (Sylow p G) 
     map_smul' := by intros ; rfl
   }
   have h4 : Q ≤ (R : Sylow p G).normalizer := by
-    rw[SetLike.le_def] --- die
-    intros h h5
-    have h210 : orbit Q (R : Sylow p G) = {(R : Sylow p G)} := by
+    rw[SetLike.le_def]
+    intros q hq
+    have h41 : orbit Q (R : Sylow p G) = {(R : Sylow p G)} := by
       change orbit Q (f R) = {f R}
       rw [← hom]
-      simp [f]
+      --simp only [Set.coe_setOf, Set.mem_setOf_eq]
       aesop
-    ---have h : H := ⟨h, h5⟩
-    rw [← normal]
-    --rw [h3] at h210
-    have hm  := mem_orbit (R : Sylow p G) (⟨h, h5⟩ : ↑Q)   --- ⟨⟨h, h5⟩, by simp[orbit]; sorry⟩ mem_orbit P h
-    --rw [hm] at h210
-    rw [h210] at hm
-    simp at hm
-    exact hm
-
-   --- same as Sylow III
-  apply normaliser at h4
+    rw [norm_def]
+    have h42  := mem_orbit (R : Sylow p G) (⟨q, hq⟩ : ↑Q)
+    rw [h41] at h42
+    --simp only [Set.mem_setOf_eq, Submonoid.mk_smul, Set.mem_singleton_iff] at h42
+    exact h42
+  apply norm_imp_sub at h4
   have h5 : (R : Sylow p G).toSubgroup = Q := Q.3 (R : Sylow p G).2 h4
-  simp [Ω] at R
-  rcases R with ⟨R, ⟨g, hg⟩⟩
-  use g
-  rw [hg]
-  simp only at h5
-  exact Sylow.ext h5
-  exact Q.2
-
--- theorem SylowIV [Finite (Sylow p G)](P : Sylow p G) : Sylow p G = {g • P | g : G} := by
---   sorry
+  --simp only [Set.coe_setOf] at R
+  rcases R with ⟨R, ⟨g, rfl⟩⟩
+  · use g
+    exact Sylow.ext h5
+  · exact Q.2
