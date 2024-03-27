@@ -120,7 +120,7 @@ Existence of Sylow p-groups
 
 /-- |G| = pᵃm (p ∤ m) → G has a subgroup of order pᵃ -/
 theorem SylowI {a m : ℕ} [Fintype G] (h :¬ (p ∣ m)) :
- card G = p ^ a * m  → ∃ P : Subgroup G, [Fintype P] → Fintype.card P = p ^ a := by sorry
+ card G = p ^ a * m  → ∃ P : Subgroup G, [Fintype P] → card P = p ^ a := by sorry
   -- follows from Sylow.exists_subgroup_card_pow_prime
 
 
@@ -131,7 +131,7 @@ nₚ(G) ≡ 1 % p -/
 /-- A corollary of the Orbit-Stabiliser Theorem
 ∣ orbit G x ∣ | ∣ G ∣ -/
 lemma orbit_div_G [Fintype G] (y : X) [MulAction G X] [Fintype <| orbit G y]
- [Fintype <| stabilizer G y] : Fintype.card (orbit G y) ∣ Fintype.card G := by
+ [Fintype <| stabilizer G y] : card (orbit G y) ∣ card G := by
   simp [Nat.instDvdNat]
   have orb_stab := card_orbit_mul_card_stabilizer_eq_card_group G y --Orbit-stabliser theorem
   exact ⟨card ↥(stabilizer G y), orb_stab.symm⟩
@@ -180,7 +180,7 @@ lemma card_stuff (X : Set S) (x : S) [Fintype X] (h : x ∈ X) (h1: card X = 1) 
 /-- Sylow's Second Theorem : nₚ(G) ≡ 1 % p -/
 theorem SylowII [Fintype (Sylow p G)] (P : Sylow p G) [Fintype P] (Q : Sylow p G)
  [∀ x : Sylow p G, Fintype (orbit P x)] [Fintype <| stabilizer P Q]
- [Fintype (Quotient <| orbitRel P (Sylow p G))] : Fintype.card (Sylow p G) ≡ 1 [MOD p] := by
+ [Fintype (Quotient <| orbitRel P (Sylow p G))] : card (Sylow p G) ≡ 1 [MOD p] := by
   -- We are considering the action of P on Sylₚ(G)
   -- ∃ an orbit of size one (P)
   have h1 : fixedPoints P (Sylow p G) = {P} := by
